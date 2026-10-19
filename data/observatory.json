@@ -1,0 +1,658 @@
+{
+ "title": "Observatorio de Suplantación de Correo — República Dominicana",
+ "scanDate": "2026-10-19",
+ "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
+ "sample": {
+  "scanned": 255,
+  "notResolving": 19,
+  "excluded": 9,
+  "analyzed": 227
+ },
+ "overall": {
+  "n": 227,
+  "dmarc": {
+   "missing": 26,
+   "none": 26,
+   "quarantine": 22,
+   "reject": 26,
+   "counts": {
+    "missing": 59,
+    "none": 59,
+    "quarantine": 50,
+    "reject": 59
+   }
+  },
+  "spoofable": 52,
+  "spoofableCount": 118,
+  "fakeDelivered": 52,
+  "subdomainSpoofable": 54.6,
+  "spf": {
+   "missing": 9.7,
+   "broken": 6.2,
+   "passAll": 0,
+   "neutralOrNoAll": 0.9,
+   "hardfail": 58.1
+  },
+  "rua": 57.3,
+  "dkimFound": 72.2,
+  "dkimWeak": 35.2,
+  "mtaSts": 2.2,
+  "mtaStsEnforce": 1,
+  "tlsRpt": 2.2,
+  "dnssec": 0.9,
+  "bimi": 4,
+  "caa": 11,
+  "avgScore": 53,
+  "grades": [
+   {
+    "grade": "A",
+    "count": 4
+   },
+   {
+    "grade": "B",
+    "count": 42
+   },
+   {
+    "grade": "C",
+    "count": 45
+   },
+   {
+    "grade": "D",
+    "count": 40
+   },
+   {
+    "grade": "E",
+    "count": 27
+   },
+   {
+    "grade": "F",
+    "count": 69
+   }
+  ]
+ },
+ "sectors": [
+  {
+   "sector": "Salud",
+   "n": 12,
+   "dmarc": {
+    "missing": 41.7,
+    "none": 41.7,
+    "quarantine": 0,
+    "reject": 16.7,
+    "counts": {
+     "missing": 5,
+     "none": 5,
+     "quarantine": 0,
+     "reject": 2
+    }
+   },
+   "spoofable": 83.3,
+   "spoofableCount": 10,
+   "fakeDelivered": 83.3,
+   "subdomainSpoofable": 83.3,
+   "spf": {
+    "missing": 8.3,
+    "broken": 8.3,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 33.3
+   },
+   "rua": 33.3,
+   "dkimFound": 75,
+   "dkimWeak": 25,
+   "mtaSts": 0,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 0,
+   "dnssec": 8.3,
+   "bimi": 0,
+   "caa": 8.3,
+   "avgScore": 42,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 2
+    },
+    {
+     "grade": "C",
+     "count": 0
+    },
+    {
+     "grade": "D",
+     "count": 2
+    },
+    {
+     "grade": "E",
+     "count": 2
+    },
+    {
+     "grade": "F",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "sector": "Medios",
+   "n": 16,
+   "dmarc": {
+    "missing": 37.5,
+    "none": 43.8,
+    "quarantine": 12.5,
+    "reject": 6.3,
+    "counts": {
+     "missing": 6,
+     "none": 7,
+     "quarantine": 2,
+     "reject": 1
+    }
+   },
+   "spoofable": 81.3,
+   "spoofableCount": 13,
+   "fakeDelivered": 81.3,
+   "subdomainSpoofable": 81.3,
+   "spf": {
+    "missing": 25,
+    "broken": 12.5,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 37.5
+   },
+   "rua": 25,
+   "dkimFound": 68.8,
+   "dkimWeak": 6.3,
+   "mtaSts": 0,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 0,
+   "dnssec": 0,
+   "bimi": 0,
+   "caa": 31.3,
+   "avgScore": 37,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 1
+    },
+    {
+     "grade": "C",
+     "count": 1
+    },
+    {
+     "grade": "D",
+     "count": 1
+    },
+    {
+     "grade": "E",
+     "count": 5
+    },
+    {
+     "grade": "F",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "sector": "Empresas y comercio",
+   "n": 24,
+   "dmarc": {
+    "missing": 45.8,
+    "none": 16.7,
+    "quarantine": 20.8,
+    "reject": 16.7,
+    "counts": {
+     "missing": 11,
+     "none": 4,
+     "quarantine": 5,
+     "reject": 4
+    }
+   },
+   "spoofable": 62.5,
+   "spoofableCount": 15,
+   "fakeDelivered": 62.5,
+   "subdomainSpoofable": 62.5,
+   "spf": {
+    "missing": 20.8,
+    "broken": 0,
+    "passAll": 0,
+    "neutralOrNoAll": 4.2,
+    "hardfail": 58.3
+   },
+   "rua": 45.8,
+   "dkimFound": 66.7,
+   "dkimWeak": 33.3,
+   "mtaSts": 4.2,
+   "mtaStsEnforce": 1,
+   "tlsRpt": 4.2,
+   "dnssec": 0,
+   "bimi": 4.2,
+   "caa": 0,
+   "avgScore": 46,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 1
+    },
+    {
+     "grade": "B",
+     "count": 3
+    },
+    {
+     "grade": "C",
+     "count": 5
+    },
+    {
+     "grade": "D",
+     "count": 2
+    },
+    {
+     "grade": "E",
+     "count": 0
+    },
+    {
+     "grade": "F",
+     "count": 13
+    }
+   ]
+  },
+  {
+   "sector": "Telecom y energía",
+   "n": 13,
+   "dmarc": {
+    "missing": 23.1,
+    "none": 38.5,
+    "quarantine": 23.1,
+    "reject": 15.4,
+    "counts": {
+     "missing": 3,
+     "none": 5,
+     "quarantine": 3,
+     "reject": 2
+    }
+   },
+   "spoofable": 61.5,
+   "spoofableCount": 8,
+   "fakeDelivered": 61.5,
+   "subdomainSpoofable": 61.5,
+   "spf": {
+    "missing": 15.4,
+    "broken": 7.7,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 53.8
+   },
+   "rua": 46.2,
+   "dkimFound": 61.5,
+   "dkimWeak": 46.2,
+   "mtaSts": 0,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 0,
+   "dnssec": 7.7,
+   "bimi": 0,
+   "caa": 15.4,
+   "avgScore": 48,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 1
+    },
+    {
+     "grade": "C",
+     "count": 3
+    },
+    {
+     "grade": "D",
+     "count": 2
+    },
+    {
+     "grade": "E",
+     "count": 3
+    },
+    {
+     "grade": "F",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "sector": "Transporte y turismo",
+   "n": 12,
+   "dmarc": {
+    "missing": 41.7,
+    "none": 16.7,
+    "quarantine": 25,
+    "reject": 16.7,
+    "counts": {
+     "missing": 5,
+     "none": 2,
+     "quarantine": 3,
+     "reject": 2
+    }
+   },
+   "spoofable": 58.3,
+   "spoofableCount": 7,
+   "fakeDelivered": 58.3,
+   "subdomainSpoofable": 66.7,
+   "spf": {
+    "missing": 8.3,
+    "broken": 0,
+    "passAll": 0,
+    "neutralOrNoAll": 8.3,
+    "hardfail": 58.3
+   },
+   "rua": 50,
+   "dkimFound": 66.7,
+   "dkimWeak": 41.7,
+   "mtaSts": 0,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 0,
+   "dnssec": 0,
+   "bimi": 0,
+   "caa": 0,
+   "avgScore": 46,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 2
+    },
+    {
+     "grade": "C",
+     "count": 2
+    },
+    {
+     "grade": "D",
+     "count": 2
+    },
+    {
+     "grade": "E",
+     "count": 1
+    },
+    {
+     "grade": "F",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "sector": "Educación superior",
+   "n": 35,
+   "dmarc": {
+    "missing": 28.6,
+    "none": 28.6,
+    "quarantine": 28.6,
+    "reject": 14.3,
+    "counts": {
+     "missing": 10,
+     "none": 10,
+     "quarantine": 10,
+     "reject": 5
+    }
+   },
+   "spoofable": 57.1,
+   "spoofableCount": 20,
+   "fakeDelivered": 57.1,
+   "subdomainSpoofable": 62.9,
+   "spf": {
+    "missing": 5.7,
+    "broken": 8.6,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 51.4
+   },
+   "rua": 54.3,
+   "dkimFound": 77.1,
+   "dkimWeak": 42.9,
+   "mtaSts": 0,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 0,
+   "dnssec": 0,
+   "bimi": 2.9,
+   "caa": 2.9,
+   "avgScore": 49,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 4
+    },
+    {
+     "grade": "C",
+     "count": 6
+    },
+    {
+     "grade": "D",
+     "count": 11
+    },
+    {
+     "grade": "E",
+     "count": 3
+    },
+    {
+     "grade": "F",
+     "count": 11
+    }
+   ]
+  },
+  {
+   "sector": "Gobierno",
+   "n": 69,
+   "dmarc": {
+    "missing": 20.3,
+    "none": 33.3,
+    "quarantine": 24.6,
+    "reject": 21.7,
+    "counts": {
+     "missing": 14,
+     "none": 23,
+     "quarantine": 17,
+     "reject": 15
+    }
+   },
+   "spoofable": 53.6,
+   "spoofableCount": 37,
+   "fakeDelivered": 53.6,
+   "subdomainSpoofable": 56.5,
+   "spf": {
+    "missing": 7.2,
+    "broken": 2.9,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 68.1
+   },
+   "rua": 59.4,
+   "dkimFound": 65.2,
+   "dkimWeak": 30.4,
+   "mtaSts": 1.4,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 1.4,
+   "dnssec": 0,
+   "bimi": 0,
+   "caa": 7.2,
+   "avgScore": 53,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 9
+    },
+    {
+     "grade": "C",
+     "count": 16
+    },
+    {
+     "grade": "D",
+     "count": 16
+    },
+    {
+     "grade": "E",
+     "count": 11
+    },
+    {
+     "grade": "F",
+     "count": 17
+    }
+   ]
+  },
+  {
+   "sector": "Banca y finanzas",
+   "n": 46,
+   "dmarc": {
+    "missing": 10.9,
+    "none": 6.5,
+    "quarantine": 21.7,
+    "reject": 60.9,
+    "counts": {
+     "missing": 5,
+     "none": 3,
+     "quarantine": 10,
+     "reject": 28
+    }
+   },
+   "spoofable": 17.4,
+   "spoofableCount": 8,
+   "fakeDelivered": 17.4,
+   "subdomainSpoofable": 19.6,
+   "spf": {
+    "missing": 4.3,
+    "broken": 10.9,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 63
+   },
+   "rua": 84.8,
+   "dkimFound": 87,
+   "dkimWeak": 45.7,
+   "mtaSts": 6.5,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 6.5,
+   "dnssec": 0,
+   "bimi": 15.2,
+   "caa": 23.9,
+   "avgScore": 71,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 3
+    },
+    {
+     "grade": "B",
+     "count": 20
+    },
+    {
+     "grade": "C",
+     "count": 12
+    },
+    {
+     "grade": "D",
+     "count": 4
+    },
+    {
+     "grade": "E",
+     "count": 2
+    },
+    {
+     "grade": "F",
+     "count": 5
+    }
+   ]
+  }
+ ],
+ "providers": [
+  {
+   "id": "m365",
+   "count": 116,
+   "share": 51.1
+  },
+  {
+   "id": "google",
+   "count": 35,
+   "share": 15.4
+  },
+  {
+   "id": "other",
+   "count": 33,
+   "share": 14.5
+  },
+  {
+   "id": "sin-correo",
+   "count": 17,
+   "share": 7.5
+  },
+  {
+   "id": "cpanel",
+   "count": 12,
+   "share": 5.3
+  },
+  {
+   "id": "proofpoint",
+   "count": 10,
+   "share": 4.4
+  },
+  {
+   "id": "zoho",
+   "count": 1,
+   "share": 0.4
+  },
+  {
+   "id": "fortimail",
+   "count": 1,
+   "share": 0.4
+  },
+  {
+   "id": "godaddy",
+   "count": 1,
+   "share": 0.4
+  },
+  {
+   "id": "barracuda",
+   "count": 1,
+   "share": 0.4
+  }
+ ],
+ "benchmarks": [
+  {
+   "label": "Ecuador",
+   "reject": 24.9,
+   "source": "PowerDMARC 2026"
+  },
+  {
+   "label": "Brasil",
+   "reject": 20.7,
+   "source": "PowerDMARC 2026"
+  },
+  {
+   "label": "Argentina",
+   "reject": 18.5,
+   "source": "PowerDMARC 2026"
+  },
+  {
+   "label": "Perú",
+   "reject": 17.9,
+   "source": "PowerDMARC 2026"
+  },
+  {
+   "label": "México",
+   "reject": 16.2,
+   "source": "PowerDMARC 2026"
+  }
+ ]
+}

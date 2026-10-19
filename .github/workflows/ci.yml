@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  OSV_SCANNER_VERSION: 2.7.0
+  SEMGREP_VERSION: 1.181.0
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run test:e2e
+
+  seguridad:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Secretos (gitleaks)
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl -sSfL -o gitleaks.tgz "${base}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o checksums.txt "${base}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          grep "linux_x64.tar.gz" checksums.txt | awk '{print $1"  gitleaks.tgz"}' | sha256sum -c -
+          tar xzf gitleaks.tgz gitleaks
+          ./gitleaks git --redact --exit-code 1 .
+
+      - name: Análisis estático (Semgrep)
+        run: |
+          python3 -m pip install --quiet "semgrep==${SEMGREP_VERSION}"
+          semgrep scan --metrics=off --error \
+            --config p/javascript --config p/secrets --config p/github-actions \
+            --exclude dist --exclude node_modules .
+
+      - name: Dependencias (OSV-Scanner)
+        run: |
+          base="https://github.com/google/osv-scanner/releases/download/v${OSV_SCANNER_VERSION}"
+          curl -sSfL -o osv-scanner "${base}/osv-scanner_linux_amd64"
+          curl -sSfL -o osv.sha256 "${base}/osv-scanner_SHA256SUMS"
+          grep "osv-scanner_linux_amd64$" osv.sha256 | awk '{print $1"  osv-scanner"}' | sha256sum -c -
+          chmod +x osv-scanner
+          ./osv-scanner scan source --lockfile package-lock.json
