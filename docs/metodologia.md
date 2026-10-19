@@ -12,9 +12,10 @@
   - Se descartaron los dominios que no existen en DNS.
   - Se excluyeron duplicados de una misma organización y dominios cuya titularidad no se pudo confirmar, por ejemplo páginas de estacionamiento de registradores o sitios informativos no oficiales.
   - La titularidad se verificó con el título de la página principal.
-- **Resultado:** 255 candidatos, 19 sin DNS, 9 excluidos, **227 analizados**, agrupados en 8 sectores.
+- **Resultado:** 255 candidatos, 19 sin DNS, 9 excluidos, 2 no concluyentes, **225 analizados**, agrupados en 8 sectores.
+- **No concluyentes:** si los servidores DNS de una organización devuelven errores temporales (SERVFAIL o tiempo agotado) después de 3 intentos, no se puede saber si tiene DMARC. Esas organizaciones no se cuentan ni como protegidas ni como suplantables.
 
-Es una muestra de conveniencia, no un censo ni una muestra aleatoria. Las cifras describen a esas 227 organizaciones y no deben extrapolarse como estadística nacional.
+Es una muestra de conveniencia, no un censo ni una muestra aleatoria. Las cifras describen a esas 225 organizaciones y no deben extrapolarse como estadística nacional.
 
 ## Medición
 

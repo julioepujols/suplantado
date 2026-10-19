@@ -55,6 +55,7 @@
     { id: 'titan', name: 'Titan Email', mx: /\.titan\.email$/ },
     { id: 'hostinger', name: 'Hostinger', mx: /\.hostinger\.com$/ },
     { id: 'icloud', name: 'iCloud Mail', mx: /\.mail\.icloud\.com$/ },
+    { id: 'outlookcom', name: 'Outlook.com (Microsoft, cuenta personal)', mx: /(^|\.)(pamx\d+\.)?hotmail\.com$|\.olc\.protection\.outlook\.com$/ },
     { id: 'yandex', name: 'Yandex', mx: /\.yandex\.(net|ru)$/ },
     { id: 'ovh', name: 'OVHcloud', mx: /\.ovh\.net$/ },
     { id: 'ionos', name: 'IONOS', mx: /\.(ionos|1and1)\.[a-z.]+$/ },
@@ -68,6 +69,7 @@
     godaddy: 'include:secureserver.net',
     titan: 'include:spf.titan.email',
     hostinger: 'include:_spf.mail.hostinger.com',
+    outlookcom: 'include:outlook.com',
   };
 
   // ---------------------------------------------------------------- utilidades
@@ -879,7 +881,7 @@
       const eff = effectivePolicy(base, dmarc.testing || dmarc.partial);
       const finalPolicy = dmarc.partial && eff !== 'none' ? `${eff}*` : eff;
       disposition = { none: 'delivered', quarantine: 'quarantine', reject: 'rejected' }[eff];
-      dmarcText = `DMARC falla (ni SPF ni DKIM alineados). Política aplicada: "${finalPolicy.replace('*', '')}"${dmarc.partial ? ` (peor caso: con pct=${dmarc.tags.pct}, el resto del correo recibe una política más suave)` : ''}${dmarc.testing ? ' (rebajada por modo prueba)' : ''}.`;
+      dmarcText = `DMARC falla (ni SPF ni DKIM alineados). Política aplicada: "${finalPolicy.replace(/\*/g, '')}"${dmarc.partial ? ` (peor caso: con pct=${dmarc.tags.pct}, el resto del correo recibe una política más suave)` : ''}${dmarc.testing ? ' (rebajada por modo prueba)' : ''}.`;
     }
     steps.push({ id: 'dmarc', title: 'Evaluación DMARC', result: dmarc.present ? (dmarcPass ? 'pass' : 'fail') : 'none', ok: disposition === 'rejected', bad: disposition !== 'rejected' && disposition !== 'quarantine', text: dmarcText });
 

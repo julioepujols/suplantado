@@ -6,17 +6,17 @@
 <meta property="og:locale" content="es_DO">
 <meta property="og:site_name" content="Suplanta.do">
 <meta property="og:title" content="¿Pueden enviar correos haciéndose pasar por tu empresa?">
-<meta property="og:description" content="El 52% de 227 organizaciones dominicanas pueden ser suplantadas por correo. Comprueba tu dominio gratis en segundos.">
+<meta property="og:description" content="El 52% de 225 organizaciones dominicanas pueden ser suplantadas por correo. Comprueba tu dominio gratis en segundos.">
 <meta property="og:url" content="__SITE_URL__/">
 <meta property="og:image" content="__SITE_URL__/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Sobre de correo aéreo con el matasellos Puede llegar y la cifra 52% de organizaciones suplantables">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Suplanta.do","url":"__SITE_URL__/","applicationCategory":"SecurityApplication","operatingSystem":"Web","inLanguage":"es","isAccessibleForFree":true,"description":"Comprobación pasiva de SPF, DKIM y DMARC con simulación de suplantación de correo y observatorio de República Dominicana.","creator":{"@type":"Person","name":"Julio Pujols","address":{"@type":"PostalAddress","addressLocality":"Santo Domingo","addressCountry":"DO"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Suplanta.do","url":"__SITE_URL__/","applicationCategory":"SecurityApplication","operatingSystem":"Web","inLanguage":"es","isAccessibleForFree":true,"description":"Comprobación pasiva de SPF, DKIM y DMARC con simulación de suplantación de correo y observatorio de República Dominicana.","creator":{"@type":"Person","name":"Julio Pujols","jobTitle":"Tecnólogo en Seguridad Informática","address":{"@type":"PostalAddress","addressLocality":"Santo Domingo","addressCountry":"DO"}}}</script>
 <style>
 /*__FONTS__*/
-/* Layout: sobre de correo aéreo como héroe (formulario a la izquierda, sobre con matasellos a la derecha); informe y observatorio en una sola columna de lectura debajo. */
+/* Identidad: sobre de correo aéreo. Momento memorable: el recorrido postal bajo el sobre (tres controles y un destino). Todo lo demás, sobrio. */
 :root {
   --paper: #f5f7fb;
   --paper-2: #e9eef6;
@@ -37,11 +37,13 @@
   --risk-low-bg: #e6f4ec;
   --ghost: #7d889d;
   --focus: #1c4e9e;
+  --header-bg: rgba(245, 247, 251, 0.92);
   --font-display: 'Archivo', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --measure: 66ch;
   --wrap: 1120px;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -49,7 +51,7 @@
     --post-blue: #86aef2; --post-red: #f2687a;
     --risk-critical: #ff7684; --risk-high: #ff9a5c; --risk-medium: #f0c047; --risk-low: #4fd18a;
     --risk-critical-bg: #3a1a24; --risk-high-bg: #3a2416; --risk-medium-bg: #352c12; --risk-low-bg: #12301f;
-    --ghost: #5d6a84; --focus: #86aef2; color-scheme: dark;
+    --ghost: #5d6a84; --focus: #86aef2; --header-bg: rgba(13, 21, 38, 0.92); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
@@ -57,23 +59,28 @@
   --post-blue: #86aef2; --post-red: #f2687a;
   --risk-critical: #ff7684; --risk-high: #ff9a5c; --risk-medium: #f0c047; --risk-low: #4fd18a;
   --risk-critical-bg: #3a1a24; --risk-high-bg: #3a2416; --risk-medium-bg: #352c12; --risk-low-bg: #12301f;
-  --ghost: #5d6a84; --focus: #86aef2; color-scheme: dark;
+  --ghost: #5d6a84; --focus: #86aef2; --header-bg: rgba(13, 21, 38, 0.92); color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
 body {
   margin: 0; background: var(--paper); color: var(--ink);
   font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6;
-  font-variation-settings: 'wdth' 100;
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--post-blue); text-underline-offset: 0.18em; }
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
 code, .mono { font-family: var(--font-mono); font-size: 0.875em; }
+.icon { width: 1.15em; height: 1.15em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.2em; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 8px; }
+.skip:focus { top: 12px; }
+
+/* Modo de lectura: Simple (por defecto) o Técnica */
+body[data-mode="simple"] .only-tech, body[data-mode="tech"] .only-simple { display: none !important; }
 
 .wrap {
   max-width: var(--wrap); margin-inline: auto;
@@ -81,20 +88,42 @@ code, .mono { font-family: var(--font-mono); font-size: 0.875em; }
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .airmail {
-  height: 10px;
+  height: 8px;
   background: repeating-linear-gradient(-45deg, var(--post-red) 0 14px, var(--paper) 14px 21px, var(--post-blue) 21px 35px, var(--paper) 35px 42px);
 }
 
-/* ---------- cabecera ---------- */
-.top-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
-.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.01em; font-variation-settings: 'wdth' 80; }
-.brand svg { width: 30px; height: 30px; flex: none; }
-.nav { display: flex; gap: 6px 22px; flex-wrap: wrap; font-size: 0.95rem; }
-.nav a { color: var(--ink-2); text-decoration: none; }
-.nav a:hover { color: var(--ink); text-decoration: underline; }
+/* ---------- botones ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: inherit; font-weight: 650; font-size: 0.95rem; line-height: 1.2; text-decoration: none;
+  border-radius: 10px; padding: 11px 18px; cursor: pointer; min-height: 44px;
+  border: 2px solid var(--ink); background: var(--ink); color: var(--paper);
+  transition: background-color 160ms, border-color 160ms, color 160ms, transform 120ms;
+}
+.btn:hover { background: var(--post-blue); border-color: var(--post-blue); color: var(--paper); }
+.btn:active { transform: translateY(1px); }
+.btn.secondary { background: transparent; color: var(--ink); }
+.btn.secondary:hover { background: var(--paper-2); color: var(--ink); border-color: var(--ink); }
+.btn.small { min-height: 36px; padding: 6px 12px; font-size: 0.88rem; border-width: 1px; }
+.btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--rule); }
+.btn.ghost:hover { border-color: var(--ink-3); background: var(--card); color: var(--ink); }
+.btn:disabled { opacity: 0.6; cursor: progress; }
+
+/* ---------- cabecera fija ---------- */
+.top { position: sticky; top: 0; z-index: 30; background: var(--header-bg); border-bottom: 1px solid var(--rule); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.top-in { display: flex; align-items: center; gap: 12px 20px; min-height: 62px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -0.01em; font-variation-settings: 'wdth' 80; margin-right: auto; }
+.brand svg { width: 28px; height: 28px; flex: none; }
+.nav { display: flex; gap: 2px; font-size: 0.93rem; }
+.nav a { color: var(--ink-2); text-decoration: none; padding: 8px 10px; border-radius: 8px; }
+.nav a:hover { color: var(--ink); background: var(--paper-2); }
+.mode { display: inline-flex; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 999px; padding: 3px; flex: none; }
+.mode button { font: inherit; font-size: 0.85rem; font-weight: 600; border: 0; background: transparent; color: var(--ink-2); border-radius: 999px; padding: 5px 12px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.mode button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.menu-btn { display: none; }
 
 /* ---------- héroe ---------- */
-.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; padding-block: clamp(24px, 5vw, 56px) clamp(32px, 6vw, 72px); }
+.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; padding-block: clamp(28px, 5vw, 60px) clamp(36px, 6vw, 72px); }
 .hero h1 {
   font-family: var(--font-display); font-weight: 820; font-variation-settings: 'wdth' 72;
   font-size: clamp(2.5rem, 6.2vw, 4.6rem); line-height: 0.98; letter-spacing: -0.015em;
@@ -102,26 +131,29 @@ code, .mono { font-family: var(--font-mono); font-size: 0.875em; }
 }
 .lede { font-size: 1.15rem; color: var(--ink-2); max-width: 46ch; margin: 0 0 28px; }
 .field-label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
-.field { display: flex; gap: 0; border: 2px solid var(--ink); border-radius: 10px; background: var(--card); overflow: hidden; max-width: 560px; }
+.field { display: flex; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); overflow: hidden; max-width: 560px; }
 .field:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.field > .icon { align-self: center; margin-left: 14px; color: var(--ink-3); }
 .field input {
   flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink);
-  font-family: var(--font-mono); font-size: 1.05rem; padding: 14px 16px; outline: none;
+  font-family: var(--font-mono); font-size: 1.05rem; padding: 14px 12px; outline: none;
 }
 .field input::placeholder { color: var(--ink-3); }
 .field button {
+  display: inline-flex; align-items: center; gap: 8px;
   border: 0; background: var(--ink); color: var(--paper); font-family: var(--font-body); font-weight: 700;
   font-size: 1rem; padding: 0 22px; cursor: pointer; white-space: nowrap;
 }
-.field button:hover { background: var(--post-blue); }
-.field button:disabled { opacity: 0.6; cursor: progress; }
-.hint { color: var(--ink-3); font-size: 0.9rem; margin: 10px 0 0; max-width: 560px; }
-.examples { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin: 18px 0 0; font-size: 0.92rem; color: var(--ink-2); }
+.field button:hover { background: var(--post-blue); color: var(--paper); }
+.field button:disabled { opacity: 0.7; cursor: progress; }
+.hint { display: flex; gap: 8px; align-items: flex-start; color: var(--ink-3); font-size: 0.9rem; margin: 12px 0 0; max-width: 560px; }
+.hint .icon { margin-top: 3px; }
+.examples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 0; font-size: 0.92rem; color: var(--ink-2); }
 .chip {
   font: inherit; font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); background: var(--paper-2);
-  border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; cursor: pointer;
+  border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer; min-height: 32px;
 }
-.chip:hover { border-color: var(--ink-3); }
+.chip:hover { border-color: var(--ink-3); background: var(--card); }
 .chip small { font-family: var(--font-body); color: var(--ink-3); }
 .status { min-height: 1.6em; margin: 14px 0 0; font-size: 0.95rem; color: var(--ink-2); max-width: 560px; }
 .status.error { color: var(--risk-critical); }
@@ -159,23 +191,54 @@ code, .mono { font-family: var(--font-mono); font-size: 0.875em; }
 .mark[data-tone="high"] { color: var(--risk-high); }
 .mark[data-tone="medium"] { color: var(--risk-medium); }
 .mark[data-tone="low"] { color: var(--risk-low); }
-.mark.thunk { animation: thunk 420ms cubic-bezier(.2, 1.4, .4, 1) both; }
+.mark.thunk { animation: thunk 420ms cubic-bezier(.2, 1.4, .4, 1) both; animation-delay: var(--thunk-delay, 0ms); }
 @keyframes thunk { 0% { transform: rotate(-9deg) scale(1.9); opacity: 0; } 60% { opacity: 1; } 100% { transform: rotate(-9deg) scale(1); opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .mark.thunk { animation: none; } }
-.envelope figcaption { margin-top: 18px; color: var(--ink-3); font-size: 0.9rem; max-width: 52ch; }
+
+/* ---------- recorrido postal (momento memorable) ---------- */
+.trail { position: relative; margin-top: 18px; padding-top: 26px; }
+.trail-track { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.trail-track::before { content: ''; position: absolute; left: 12.5%; right: 12.5%; top: 17px; border-top: 2px dashed var(--rule); }
+.stop { position: relative; text-align: center; font-size: 0.8rem; color: var(--ink-3); line-height: 1.25; padding: 0 4px; }
+.stop .dot {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; margin: 0 auto 8px;
+  border-radius: 50%; border: 2px solid var(--rule); background: var(--paper); color: var(--ink-3);
+  transition: border-color 260ms, background-color 260ms, color 260ms;
+}
+.stop strong { display: block; color: var(--ink); font-size: 0.85rem; }
+.stop[data-state="ok"] .dot { border-color: var(--risk-low); color: var(--risk-low); background: var(--risk-low-bg); }
+.stop[data-state="warn"] .dot { border-color: var(--risk-medium); color: var(--risk-medium); background: var(--risk-medium-bg); }
+.stop[data-state="bad"] .dot { border-color: var(--risk-critical); color: var(--risk-critical); background: var(--risk-critical-bg); }
+.stop:nth-child(2) .dot { transition-delay: var(--d2, 0ms); }
+.stop:nth-child(3) .dot { transition-delay: var(--d3, 0ms); }
+.stop:nth-child(4) .dot { transition-delay: var(--d4, 0ms); }
+.trail[data-busy] .stop .dot { animation: ping 1.2s ease-in-out infinite; }
+.trail[data-busy] .stop:nth-child(2) .dot { animation-delay: 200ms; }
+.trail[data-busy] .stop:nth-child(3) .dot { animation-delay: 400ms; }
+.trail[data-busy] .stop:nth-child(4) .dot { animation-delay: 600ms; }
+@keyframes ping { 0%, 100% { border-color: var(--rule); } 50% { border-color: var(--post-blue); color: var(--post-blue); } }
+.courier {
+  position: absolute; z-index: 2; top: 0; left: calc(12.5% - 13px); width: 26px; height: 18px;
+  color: var(--post-blue); transition: left 1.5s var(--ease-out);
+}
+.courier svg { width: 26px; height: 18px; display: block; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.trail[data-at="0"] .courier { opacity: 0.55; }
+.trail[data-at="1"] .courier { left: calc(37.5% - 13px); }
+.trail[data-at="2"] .courier { left: calc(62.5% - 13px); }
+.trail[data-at="3"] .courier { left: calc(87.5% - 13px); }
+.trail-caption { margin: 12px 0 0; font-size: 0.88rem; color: var(--ink-3); text-align: center; }
 
 /* ---------- informe ---------- */
 .band { border-top: 1px solid var(--rule); }
-.result { padding-block: clamp(32px, 5vw, 56px); display: grid; gap: clamp(36px, 5vw, 52px); }
+.result { padding-block: clamp(32px, 5vw, 56px); display: grid; gap: clamp(40px, 5vw, 60px); }
 .section-title { font-family: var(--font-display); font-weight: 780; font-variation-settings: 'wdth' 78; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.1; margin: 0 0 6px; text-wrap: balance; }
 .section-intro { color: var(--ink-2); margin: 0 0 20px; max-width: var(--measure); }
 
 .verdict { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 40px; align-items: start; }
-.verdict-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; color: var(--ink-3); font-size: 0.9rem; margin-bottom: 10px; }
+.verdict-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; color: var(--ink-3); font-size: 0.9rem; margin-bottom: 10px; }
 .verdict-domain { font-family: var(--font-mono); color: var(--ink); font-size: 1rem; font-weight: 500; }
 .source-tag { border: 1px solid var(--rule); border-radius: 999px; padding: 1px 10px; font-size: 0.8rem; }
 .verdict h2 { font-family: var(--font-display); font-weight: 800; font-variation-settings: 'wdth' 74; font-size: clamp(1.9rem, 4.4vw, 3rem); line-height: 1.02; margin: 0 0 12px; text-wrap: balance; max-width: 24ch; }
-.verdict p { margin: 0; color: var(--ink-2); max-width: 60ch; }
+.verdict-detail { margin: 0; color: var(--ink-2); max-width: 60ch; }
 .pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.82rem; border-radius: 999px; padding: 2px 10px 2px 8px; white-space: nowrap; }
 .pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .pill[data-tone="critical"] { color: var(--risk-critical); background: var(--risk-critical-bg); }
@@ -184,19 +247,58 @@ code, .mono { font-family: var(--font-mono); font-size: 0.875em; }
 .pill[data-tone="low"] { color: var(--risk-low); background: var(--risk-low-bg); }
 .pill[data-tone="info"] { color: var(--ink-2); background: var(--paper-2); }
 
-.grade { min-width: 240px; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 20px; }
-.grade-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-.grade-letter { font-family: var(--font-display); font-weight: 900; font-variation-settings: 'wdth' 70; font-size: 4rem; line-height: 0.9; }
-.grade-score { color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.grade ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.85rem; }
+/* resumen para gerencia */
+.brief { margin-top: 22px; border-left: 4px solid var(--post-blue); background: var(--card); border-radius: 0 12px 12px 0; padding: 16px 20px; max-width: 64ch; }
+.brief h3 { margin: 0 0 10px; font-size: 1rem; display: flex; gap: 8px; align-items: center; }
+.brief dl { margin: 0; display: grid; gap: 10px; }
+.brief dt { font-weight: 650; font-size: 0.92rem; }
+.brief dd { margin: 2px 0 0; color: var(--ink-2); font-size: 0.95rem; }
+
+/* calificación */
+.grade { min-width: 250px; background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 20px; }
+.ring-wrap { display: flex; align-items: center; gap: 16px; }
+.ring { width: 104px; height: 104px; flex: none; position: relative; }
+.ring svg { width: 104px; height: 104px; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 9; }
+.ring .bg { stroke: var(--paper-2); }
+.ring .fg { stroke: var(--ink-2); stroke-linecap: round; stroke-dasharray: 263.9; stroke-dashoffset: 263.9; transition: stroke-dashoffset 1s var(--ease-out); }
+.ring[data-tone="critical"] .fg { stroke: var(--risk-critical); }
+.ring[data-tone="high"] .fg { stroke: var(--risk-high); }
+.ring[data-tone="medium"] .fg { stroke: var(--risk-medium); }
+.ring[data-tone="low"] .fg { stroke: var(--risk-low); }
+.ring-letter { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 900; font-variation-settings: 'wdth' 70; font-size: 2.6rem; line-height: 1; }
+.grade-score { color: var(--ink-2); font-variant-numeric: tabular-nums; margin: 0; }
+.grade-score strong { color: var(--ink); font-size: 1.4rem; }
+.grade details { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 4px; }
+.grade summary { font-size: 0.88rem; }
+.grade ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; font-size: 0.85rem; }
 .grade li { display: grid; grid-template-columns: minmax(0, 1fr) 46px; gap: 4px 10px; align-items: center; }
 .meter { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: var(--paper-2); overflow: hidden; }
 .meter > span { display: block; height: 100%; background: var(--ink-2); border-radius: 3px; }
 .grade li .pts { text-align: right; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
-/* recorrido */
+/* desplegables: un único estilo, evidente */
+.fold { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; min-width: 0; }
+.fold + .fold { margin-top: 10px; }
+.fold > summary, .grade summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px 12px;
+  padding: 14px 18px; font-weight: 600; border-radius: 12px;
+}
+.grade summary { padding: 8px 0; }
+.fold > summary::-webkit-details-marker, .grade summary::-webkit-details-marker { display: none; }
+.fold > summary:hover { background: var(--paper-2); }
+.fold > summary .sum-text { flex: 1 1 auto; min-width: 0; }
+.chev { margin-left: auto; width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--rule); color: var(--ink-2); transition: transform 200ms var(--ease-out); }
+.grade summary .chev { width: 24px; height: 24px; }
+details[open] > summary .chev { transform: rotate(180deg); }
+.fold[open] > summary { border-bottom: 1px solid var(--rule); border-radius: 12px 12px 0 0; }
+.fold .body { padding: 14px 18px 18px; display: grid; gap: 12px; min-width: 0; }
+.fold .body > p { margin: 0; max-width: var(--measure); }
+.fold-hint { font-size: 0.85rem; color: var(--ink-3); font-weight: 500; }
+
+/* recorrido detallado */
 .tabs { display: inline-flex; gap: 4px; background: var(--paper-2); padding: 4px; border-radius: 10px; margin-bottom: 18px; flex-wrap: wrap; }
-.tabs button { font: inherit; font-size: 0.9rem; border: 0; background: transparent; color: var(--ink-2); padding: 6px 14px; border-radius: 7px; cursor: pointer; }
+.tabs button { font: inherit; font-size: 0.9rem; border: 0; background: transparent; color: var(--ink-2); padding: 7px 14px; border-radius: 7px; cursor: pointer; min-height: 36px; }
 .tabs button[aria-selected="true"] { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(16, 32, 58, 0.12); }
 .route-from { font-size: 0.92rem; color: var(--ink-2); margin: 0 0 16px; }
 .route { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; counter-reset: step; }
@@ -215,45 +317,29 @@ code, .mono { font-family: var(--font-mono); font-size: 0.875em; }
 .route h4 { margin: 0 0 4px; font-size: 1rem; }
 .route .code { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-2); display: block; margin-bottom: 6px; }
 .route p { margin: 0; font-size: 0.92rem; color: var(--ink-2); }
+.plain { margin-top: 10px !important; padding: 10px 12px; border-radius: 10px; background: var(--paper-2); color: var(--ink) !important; }
+.plain b { display: block; font-size: 0.8rem; color: var(--ink-3); margin-bottom: 2px; }
 .route .final h4 { font-family: var(--font-display); font-variation-settings: 'wdth' 70; font-weight: 850; font-size: 1.25rem; line-height: 1.05; }
 .route .final[data-tone="critical"] h4 { color: var(--risk-critical); }
 .route .final[data-tone="high"] h4 { color: var(--risk-high); }
 .route .final[data-tone="medium"] h4 { color: var(--risk-medium); }
 .route .final[data-tone="low"] h4 { color: var(--risk-low); }
 
-/* hallazgos */
-.findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
-.findings li { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 6px 16px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
-.findings p { margin: 0; max-width: var(--measure); }
-.empty-note { color: var(--ink-2); margin: 0; }
-
 /* plan */
-.plan { display: grid; gap: 22px; }
-.plan-item { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: clamp(16px, 3vw, 24px); min-width: 0; }
-.plan-item h4 { margin: 0 0 4px; font-size: 1.1rem; }
-.plan-item .why { margin: 0 0 14px; color: var(--ink-2); max-width: var(--measure); }
-.plan-item .note { margin: 14px 0 0; color: var(--ink-2); font-size: 0.93rem; max-width: var(--measure); }
 .record { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 4px 12px; align-items: start; padding: 10px 0; border-top: 1px dashed var(--rule); }
-.record:first-of-type { border-top: 0; }
+.record:first-child { border-top: 0; }
 .record .rtype { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); padding-top: 3px; }
 .record .rname { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-2); overflow-wrap: anywhere; }
 .record .rvalue { font-family: var(--font-mono); font-size: 0.88rem; background: var(--paper-2); border-radius: 6px; padding: 8px 10px; margin-top: 4px; overflow-wrap: anywhere; display: block; }
-.copy { font: inherit; font-size: 0.85rem; border: 1px solid var(--rule); background: var(--card); color: var(--ink); border-radius: 8px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
-.copy:hover { border-color: var(--ink-3); }
-.phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: phase; }
+.phases { list-style: none; margin: 0; padding: 0; display: grid; counter-reset: phase; }
 .phases > li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 0 12px; padding: 12px 0; border-top: 1px dashed var(--rule); }
 .phases > li:first-child { border-top: 0; }
 .phases > li::before { counter-increment: phase; content: counter(phase); width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
-.phases h5 { margin: 2px 0 2px; font-size: 0.98rem; }
+.phases .ph-label { margin: 2px 0 2px; font-size: 0.98rem; font-weight: 700; color: var(--ink); }
 .phases p { margin: 6px 0 0; font-size: 0.92rem; color: var(--ink-2); }
+.note { color: var(--ink-2); font-size: 0.93rem; }
 
 /* detalle técnico */
-.tech { display: grid; gap: 10px; }
-.tech details { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 0 18px; min-width: 0; }
-.tech summary { cursor: pointer; padding: 14px 0; font-weight: 600; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; list-style-position: inside; }
-.tech summary .pill { font-weight: 600; }
-.tech details[open] summary { border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
-.tech .body { padding-bottom: 18px; display: grid; gap: 12px; min-width: 0; }
 .raw { font-family: var(--font-mono); font-size: 0.85rem; background: var(--paper-2); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
 .kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 18px; margin: 0; font-size: 0.93rem; }
 .kv dt { color: var(--ink-3); font-family: var(--font-mono); font-size: 0.85rem; }
@@ -273,17 +359,15 @@ table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
 th, td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
 th { color: var(--ink-3); font-weight: 600; font-size: 0.85rem; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.btn { font: inherit; font-weight: 600; font-size: 0.95rem; border-radius: 10px; padding: 10px 18px; cursor: pointer; border: 2px solid var(--ink); background: var(--ink); color: var(--paper); }
-.btn.secondary { background: transparent; color: var(--ink); }
-.btn:hover { background: var(--post-blue); border-color: var(--post-blue); color: #fff; }
 
 /* ---------- observatorio ---------- */
-.obs { padding-block: clamp(40px, 6vw, 80px); background: var(--paper-2); }
+.obs { padding-block: clamp(44px, 6vw, 84px); background: var(--paper-2); }
 .obs-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
 .obs h2 { font-family: var(--font-display); font-weight: 820; font-variation-settings: 'wdth' 72; font-size: clamp(2rem, 4.6vw, 3.2rem); line-height: 1; margin: 0 0 16px; text-wrap: balance; }
-.hero-fig { font-family: var(--font-body); font-weight: 700; font-size: clamp(4.5rem, 12vw, 7.5rem); line-height: 0.9; letter-spacing: -0.03em; margin: 8px 0 6px; color: var(--risk-critical); }
+.updated { display: inline-flex; gap: 8px; align-items: center; font-size: 0.88rem; color: var(--ink-2); background: var(--card); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 12px; margin: 0 0 10px; }
+.updated i { width: 8px; height: 8px; border-radius: 50%; background: var(--risk-low); }
+.hero-fig { font-weight: 700; font-size: clamp(4.5rem, 12vw, 7.5rem); line-height: 0.9; letter-spacing: -0.03em; margin: 8px 0 6px; color: var(--risk-critical); font-variant-numeric: tabular-nums; }
 .hero-fig-label { font-size: 1.15rem; color: var(--ink); max-width: 30ch; margin: 0 0 24px; }
 .obs p { max-width: var(--measure); }
 .obs .muted { color: var(--ink-2); }
@@ -301,52 +385,96 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .c-quarantine { background: var(--risk-medium); }
 .c-reject { background: var(--risk-low); }
 .bars { display: grid; gap: 10px; }
-.bar-row { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 12px; align-items: center; font-size: 0.9rem; position: relative; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 12px; align-items: center; font-size: 0.9rem; }
 .bar-row .lbl { color: var(--ink); overflow-wrap: anywhere; line-height: 1.25; }
 .bar-row .lbl small { display: block; color: var(--ink-3); font-size: 0.78rem; }
 .bar-track { position: relative; height: 24px; display: flex; align-items: center; gap: 8px; cursor: default; }
 .bar-track:focus-visible { outline-offset: 4px; }
-.bar-fill { height: 18px; background: var(--post-blue); border-radius: 0 4px 4px 0; flex: none; }
+.bar-fill { height: 18px; background: var(--post-blue); border-radius: 0 4px 4px 0; flex: none; width: 0; transition: width 900ms var(--ease-out); }
+.bars.grown .bar-fill { width: var(--w); }
 .bar-val { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; font-size: 0.88rem; }
-.bar-grid { position: absolute; inset: 0 0 0 auto; pointer-events: none; }
 .tip { position: absolute; z-index: 5; background: var(--ink); color: var(--paper); font-size: 0.8rem; line-height: 1.4; padding: 8px 10px; border-radius: 8px; pointer-events: none; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); }
-.tip[hidden] { display: none; }
-.facts { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.trend svg { width: 100%; height: auto; display: block; overflow: visible; }
+.trend .axis { stroke: var(--rule); stroke-width: 1; }
+.trend .line { fill: none; stroke: var(--risk-critical); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.trend .line.alt { stroke: var(--risk-low); }
+.trend .pt { fill: var(--card); stroke-width: 2; }
+.trend text { font-size: 11px; fill: var(--ink-3); font-family: var(--font-body); }
+.facts { list-style: none; margin: 24px 0 0; padding: 0; display: grid; border-top: 1px solid var(--rule); }
 .facts li { padding: 12px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: 12px; align-items: baseline; }
 .facts strong { font-size: 1.35rem; font-variant-numeric: tabular-nums; font-weight: 700; }
-.method { margin-top: 28px; font-size: 0.92rem; color: var(--ink-2); }
-.method summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.obs .fold { margin-top: 24px; }
 
-/* ---------- por qué ---------- */
-.why-sec { padding-block: clamp(40px, 6vw, 80px); }
+/* ---------- secciones de contenido ---------- */
+.sec { padding-block: clamp(44px, 6vw, 84px); }
+.sec + .sec { border-top: 1px solid var(--rule); }
 .why-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px); margin-top: 28px; }
 .why-grid h3 { font-size: 1.1rem; margin: 0 0 6px; }
 .why-grid p { margin: 0; color: var(--ink-2); font-size: 0.97rem; }
 .why-grid .big { font-size: 2.2rem; font-weight: 700; line-height: 1.1; color: var(--ink); margin-bottom: 6px; font-variant-numeric: tabular-nums; }
-.sources { margin-top: 36px; font-size: 0.88rem; color: var(--ink-3); }
-.sources ul { padding-left: 18px; margin: 6px 0 0; }
+.sources { margin-top: 28px; }
+
+.glossary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.glossary .fold + .fold { margin-top: 0; }
+.term-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--paper-2); color: var(--post-blue); flex: none; }
+.term-name { font-family: var(--font-mono); font-size: 0.95rem; }
+.term-short { display: block; font-weight: 500; color: var(--ink-2); font-size: 0.9rem; }
+
+.legal-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 22px; }
+.legal-box { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 20px; }
+.legal-box h3 { margin: 0 0 10px; font-size: 1.05rem; display: flex; gap: 8px; align-items: center; }
+.legal-box ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.legal-box li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; font-size: 0.95rem; color: var(--ink-2); }
+.legal-box li .icon { margin-top: 4px; }
+.yes h3, .yes .icon { color: var(--risk-low); }
+.no h3, .no .icon { color: var(--risk-critical); }
+.disclaimer { margin-top: 18px; font-size: 0.9rem; color: var(--ink-3); max-width: var(--measure); }
 
 /* ---------- pie ---------- */
-.foot { border-top: 1px solid var(--rule); padding-block: 36px 48px; font-size: 0.92rem; color: var(--ink-2); }
-.foot-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; }
+.foot { border-top: 1px solid var(--rule); background: var(--card); padding-block: 40px 48px; font-size: 0.95rem; color: var(--ink-2); }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; }
 .foot strong { color: var(--ink); }
-.foot p { margin: 0 0 10px; max-width: 60ch; }
+.foot p { margin: 0 0 12px; max-width: 60ch; }
+.foot .actions { margin-top: 14px; }
+.foot-legal { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 0.85rem; color: var(--ink-3); }
 
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* ---------- aviso flotante ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 60;
+  display: inline-flex; gap: 8px; align-items: center;
+  background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; font-size: 0.92rem;
+  transform: translate(-50%, 140%); opacity: 0; transition: transform 220ms var(--ease-out), opacity 220ms;
+  max-width: calc(100vw - 32px);
+}
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
 
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 920px) {
+  .menu-btn { display: inline-flex; }
+  .nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 8px max(16px, env(safe-area-inset-left, 0px)) 14px; }
+  .nav.open { display: flex; }
+  .nav a { padding: 12px 10px; font-size: 1rem; }
+}
 @media (max-width: 860px) {
-  .hero, .obs-grid, .foot-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero, .obs-grid, .foot-grid, .legal-cols { grid-template-columns: minmax(0, 1fr); }
   .verdict { grid-template-columns: minmax(0, 1fr); }
-  .why-grid { grid-template-columns: minmax(0, 1fr); }
+  .why-grid, .glossary { grid-template-columns: minmax(0, 1fr); }
   .route { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .route li { padding: 0 0 0 44px; }
   .route li::before { position: absolute; left: 0; top: 0; margin: 0; }
   .route li::after { top: 30px; bottom: -16px; left: 15px; right: auto; width: 2px; height: auto; }
 }
 @media (max-width: 520px) {
+  .top-in { gap: 8px; }
+  .brand { font-size: 1.1rem; }
+  .mode button { padding: 5px 9px; }
   .field { flex-direction: column; }
-  .field button { padding: 12px; }
-  .findings li { grid-template-columns: minmax(0, 1fr); }
+  .field > .icon { display: none; }
+  .field button { padding: 12px; justify-content: center; }
   .record { grid-template-columns: minmax(0, 1fr) auto; }
   .record .rtype { grid-column: 1 / -1; }
   .bar-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
@@ -354,35 +482,76 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .postage { display: none; }
   .env dl div { grid-template-columns: 3.6em minmax(0, 1fr); }
   .env dd { font-size: 0.85rem; }
+  .stop { font-size: 0.72rem; }
+  .stop strong { font-size: 0.76rem; }
+  .ring-wrap { gap: 12px; }
 }
 </style>
+<!--__BODY__-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></symbol>
+  <symbol id="i-seal" viewBox="0 0 24 24"><circle cx="12" cy="10" r="6"/><path d="m9 15-2 6 5-2 5 2-2-6"/><path d="m9.5 10 1.8 1.8L14.5 8.5"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17"/><path d="M3 21h18"/><circle cx="15" cy="12" r="1"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 20h18.4z"/><path d="M12 10v4.5M12 17.5v.1"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.1"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14"/><path d="m5 7-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></symbol>
+  <symbol id="i-badge" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.6 1.9-2.5 3.5-2.5s2.9.9 3.5 2.5M15 10h3M15 13h3"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 5l-3 14"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c1.2-3.5 4-5.5 7.5-5.5s6.3 2 7.5 5.5"/></symbol>
+  <symbol id="i-hook" viewBox="0 0 24 24"><path d="M14 3v9a4 4 0 1 1-8 0v-1"/><path d="m4 13 2-2 2 2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="m7 15 4-4 3 3 5-6"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 26 18"><rect x="1" y="1" width="24" height="16" rx="2" fill="var(--card)"/><path d="m2 2.5 11 8 11-8"/></symbol>
+</svg>
 
+<a class="skip" href="#principal">Saltar al contenido</a>
 <div class="airmail" aria-hidden="true"></div>
-<header class="wrap top-in">
-  <a class="brand" href="#comprobar" aria-label="Suplanta.do, inicio">
-    <svg viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="5.5" width="27" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M2.5 7.5 15 17l12.5-9.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="23" cy="20" r="6.2" fill="var(--paper)" stroke="var(--post-red)" stroke-width="2.4"/><path d="M19.4 16.4l7.2 7.2" stroke="var(--post-red)" stroke-width="2.4"/></svg>
-    Suplanta.do
-  </a>
-  <nav class="nav" aria-label="Secciones">
-    <a href="#comprobar">Comprobar dominio</a>
-    <a href="#observatorio">Observatorio RD</a>
-    <a href="#por-que">Por qué importa</a>
-  </nav>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#comprobar" aria-label="Suplanta.do, inicio">
+      <svg viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="5.5" width="27" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M2.5 7.5 15 17l12.5-9.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="23" cy="20" r="6.2" fill="var(--paper)" stroke="var(--post-red)" stroke-width="2.4"/><path d="M19.4 16.4l7.2 7.2" stroke="var(--post-red)" stroke-width="2.4"/></svg>
+      Suplanta.do
+    </a>
+    <nav class="nav" id="nav" aria-label="Secciones">
+      <a href="#comprobar">Comprobar</a>
+      <a href="#observatorio">Observatorio RD</a>
+      <a href="#glosario">Glosario</a>
+      <a href="#legal">Legal y ética</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <div class="mode" role="group" aria-label="Modo de lectura">
+      <button type="button" id="mode-simple" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>Simple</button>
+      <button type="button" id="mode-tech" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>Técnica</button>
+    </div>
+    <button type="button" class="btn ghost small menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg><span class="sr-only">Menú</span></button>
+  </div>
 </header>
 
-<main>
+<main id="principal">
   <section class="wrap hero" id="comprobar">
     <div class="hero-copy">
       <h1>¿Pueden enviar correos haciéndose pasar por tu empresa?</h1>
-      <p class="lede">Escribe tu dominio. En segundos verás si un correo falso con tu nombre llegaría a la bandeja de tus clientes, por qué, y qué registros publicar para impedirlo.</p>
+      <p class="lede">Escribe tu dominio. En segundos verás si un correo falso con tu nombre llegaría a la bandeja de tus clientes, por qué, y qué publicar para impedirlo.</p>
       <form id="check-form" novalidate>
         <label class="field-label" for="domain-input">Dominio o correo de tu empresa</label>
         <div class="field">
+          <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
           <input id="domain-input" name="domain" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="320" placeholder="tuempresa.com.do">
-          <button type="submit" id="check-btn">Comprobar</button>
+          <button type="submit" id="check-btn"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>Comprobar</button>
         </div>
-        <p class="hint">Solo leemos registros DNS públicos, directamente desde tu navegador. No guardamos el dominio ni ningún dato.</p>
-        <p class="examples" id="examples"><span>Ver un ejemplo:</span></p>
+        <p class="hint"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span>Solo leemos registros DNS públicos, directamente desde tu navegador. No guardamos el dominio ni ningún dato.</span></p>
+        <p class="examples" id="examples"><span>Probar con un ejemplo:</span></p>
       </form>
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </div>
@@ -416,7 +585,16 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
           </div>
         </div>
       </div>
-      <figcaption id="env-caption">Así empieza un fraude por suplantación de correo empresarial. La pregunta es si este mensaje llegaría a tu cliente.</figcaption>
+      <div class="trail" id="trail" data-at="0">
+        <ol class="trail-track" aria-label="Controles que atraviesa el correo falso">
+          <li class="stop" id="stop-spf"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg></span><strong>SPF</strong>lista de remitentes</li>
+          <li class="stop" id="stop-dkim"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-seal"/></svg></span><strong>DKIM</strong>sello digital</li>
+          <li class="stop" id="stop-dmarc"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-door"/></svg></span><strong>DMARC</strong>el portero</li>
+          <li class="stop" id="stop-dest"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-inbox"/></svg></span><strong id="dest-label">Destino</strong><span id="dest-sub">¿bandeja o rechazo?</span></li>
+        </ol>
+        <span class="courier" aria-hidden="true"><svg><use href="#i-plane"/></svg></span>
+      </div>
+      <figcaption class="trail-caption" id="env-caption">Así empieza un fraude por suplantación de correo empresarial. La pregunta es si este mensaje llegaría a tu cliente.</figcaption>
     </figure>
   </section>
 
@@ -430,18 +608,32 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
             <span class="source-tag" id="r-source"></span>
           </div>
           <h2 id="r-headline" tabindex="-1"></h2>
-          <p id="r-detail"></p>
+          <p class="verdict-detail only-tech" id="r-detail"></p>
+          <div class="brief" aria-labelledby="brief-title">
+            <h3 id="brief-title"><svg class="icon" aria-hidden="true"><use href="#i-badge"/></svg>Resumen para gerencia</h3>
+            <dl id="r-brief"></dl>
+          </div>
         </div>
         <div class="grade" aria-labelledby="grade-title">
           <span class="sr-only" id="grade-title">Calificación de higiene de correo</span>
-          <div class="grade-top"><span class="grade-letter" id="r-grade"></span><span class="grade-score" id="r-score"></span></div>
-          <ul id="r-parts"></ul>
+          <div class="ring-wrap">
+            <div class="ring" id="r-ring" data-tone="">
+              <svg viewBox="0 0 104 104" aria-hidden="true"><circle class="bg" cx="52" cy="52" r="42"/><circle class="fg" id="r-ring-fg" cx="52" cy="52" r="42"/></svg>
+              <span class="ring-letter" id="r-grade"></span>
+            </div>
+            <p class="grade-score"><strong id="r-score"></strong><br>de 100 puntos</p>
+          </div>
+          <details>
+            <summary>Ver cómo se calcula<span class="chev" aria-hidden="true"><svg class="icon"><use href="#i-chev"/></svg></span></summary>
+            <ul id="r-parts"></ul>
+          </details>
         </div>
       </div>
 
       <div>
         <h3 class="section-title">El recorrido del correo falso</h3>
-        <p class="section-intro">Simulamos lo que haría un servidor receptor (Gmail, Outlook) con un correo falsificado enviado desde un servidor del atacante, usando tus registros reales.</p>
+        <p class="section-intro only-simple">Imaginamos que un estafador envía el correo de arriba desde su propio servidor. Así lo trataría el correo de tu cliente (Gmail, Outlook), paso a paso, con tus registros reales.</p>
+        <p class="section-intro only-tech">Simulamos lo que haría un servidor receptor con un correo falsificado enviado desde un servidor del atacante, usando tus registros reales.</p>
         <div class="tabs" role="tablist" aria-label="Escenario de la simulación">
           <button type="button" role="tab" id="tab-main" aria-selected="true" aria-controls="route-panel">Tu dominio</button>
           <button type="button" role="tab" id="tab-sub" aria-selected="false" aria-controls="route-panel">Un subdominio inventado</button>
@@ -454,25 +646,25 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
       <div>
         <h3 class="section-title">Qué encontramos</h3>
-        <p class="section-intro">Ordenado por gravedad. Cada punto explica el efecto real, no solo el nombre técnico.</p>
-        <ul class="findings" id="r-findings"></ul>
+        <p class="section-intro">Ordenado por gravedad. Abre cada punto para ver qué significa y qué hacer.</p>
+        <div id="r-findings"></div>
       </div>
 
       <div>
         <h3 class="section-title">Cómo cerrarlo</h3>
         <p class="section-intro">Registros listos para copiar en el panel DNS de tu dominio. Revisa cada valor con quien administra tu correo antes de publicarlo: un SPF incompleto puede bloquear correos legítimos.</p>
-        <div class="plan" id="r-plan"></div>
+        <div id="r-plan"></div>
       </div>
 
       <div>
         <h3 class="section-title">Detalle técnico</h3>
         <p class="section-intro">Los registros exactos que leímos y cómo los interpretamos, para tu equipo de TI.</p>
-        <div class="tech" id="r-tech"></div>
+        <div id="r-tech"></div>
       </div>
 
       <div class="actions">
-        <button type="button" class="btn" id="copy-summary">Copiar resumen del informe</button>
-        <button type="button" class="btn secondary" id="check-another">Comprobar otro dominio</button>
+        <button type="button" class="btn" id="copy-summary"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Copiar resumen del informe</button>
+        <button type="button" class="btn secondary" id="check-another"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>Comprobar otro dominio</button>
       </div>
     </div>
   </section>
@@ -481,14 +673,15 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     <div class="wrap obs-grid">
       <div>
         <h2 id="obs-title">Observatorio de suplantación de correo, República Dominicana</h2>
+        <p class="updated"><i aria-hidden="true"></i><span id="obs-updated"></span></p>
         <p class="muted" id="obs-sub"></p>
         <p class="hero-fig" id="obs-fig"></p>
         <p class="hero-fig-label" id="obs-fig-label"></p>
         <p id="obs-lead"></p>
         <ul class="facts" id="obs-facts"></ul>
-        <details class="method">
-          <summary>Metodología y divulgación responsable</summary>
-          <div id="obs-method"></div>
+        <details class="fold">
+          <summary><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span class="sum-text">Metodología y divulgación responsable</span><span class="chev" aria-hidden="true"><svg class="icon"><use href="#i-chev"/></svg></span></summary>
+          <div class="body" id="obs-method"></div>
         </details>
       </div>
       <div>
@@ -503,16 +696,22 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
           <p class="sub">Porcentaje sin DMARC o con DMARC en modo de solo observación. Pasa el cursor o enfoca una barra para ver el detalle.</p>
           <div class="bars" id="sector-bars"></div>
           <div class="tip" id="tip" hidden></div>
-          <details class="method">
-            <summary>Ver como tabla</summary>
-            <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla de resultados por sector"><table id="sector-table"></table></div>
+          <details class="fold">
+            <summary><span class="sum-text">Ver como tabla</span><span class="chev" aria-hidden="true"><svg class="icon"><use href="#i-chev"/></svg></span></summary>
+            <div class="body"><div class="table-wrap" tabindex="0" role="region" aria-label="Tabla de resultados por sector"><table id="sector-table"></table></div></div>
           </details>
+        </div>
+        <div class="chart trend" id="chart-trend" hidden>
+          <h3>Evolución diaria</h3>
+          <p class="sub" id="trend-sub"></p>
+          <div id="trend-plot"></div>
+          <ul class="legend"><li><i class="c-missing" aria-hidden="true"></i>Suplantables</li><li><i class="c-reject" aria-hidden="true"></i>En rechazo (reject)</li></ul>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="wrap why-sec" id="por-que" aria-labelledby="why-title">
+  <section class="wrap sec" id="por-que" aria-labelledby="why-title">
     <h2 class="section-title" id="why-title">Por qué importa</h2>
     <p class="section-intro">El fraude más caro no usa virus: usa un correo que parece venir de alguien de confianza y pide cambiar una cuenta bancaria.</p>
     <div class="why-grid">
@@ -532,34 +731,79 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
         <p>En mayo de 2026 la IETF publicó la nueva especificación de DMARC: elimina la etiqueta pct, añade el modo prueba t=y y la política np para subdominios inexistentes. Esta herramienta ya la aplica.</p>
       </div>
     </div>
-    <div class="sources">
-      <p>Fuentes</p>
-      <ul>
-        <li><a href="https://www.ic3.gov/AnnualReport/Reports" target="_blank" rel="noopener noreferrer">FBI Internet Crime Complaint Center, informe anual 2025</a></li>
-        <li><a href="https://support.google.com/a/answer/81126" target="_blank" rel="noopener noreferrer">Google: requisitos para remitentes de correo</a></li>
-        <li><a href="https://techcommunity.microsoft.com/blog/microsoftdefenderforoffice365blog/strengthening-email-ecosystem-outlook%E2%80%99s-new-requirements-for-high%E2%80%90volume-senders/4399730" target="_blank" rel="noopener noreferrer">Microsoft: nuevos requisitos de Outlook para remitentes de alto volumen</a></li>
-        <li><a href="https://www.rfc-editor.org/rfc/rfc9989" target="_blank" rel="noopener noreferrer">RFC 9989, DMARC</a> y <a href="https://www.rfc-editor.org/rfc/rfc7208" target="_blank" rel="noopener noreferrer">RFC 7208, SPF</a></li>
-        <li><a href="https://powerdmarc.com/latin-america-email-security/" target="_blank" rel="noopener noreferrer">PowerDMARC, estado de DMARC en América Latina 2026</a></li>
-      </ul>
+    <details class="fold sources">
+      <summary><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg><span class="sum-text">Fuentes</span><span class="chev" aria-hidden="true"><svg class="icon"><use href="#i-chev"/></svg></span></summary>
+      <div class="body">
+        <ul>
+          <li><a href="https://www.ic3.gov/AnnualReport/Reports" target="_blank" rel="noopener noreferrer">FBI Internet Crime Complaint Center, informe anual 2025</a></li>
+          <li><a href="https://support.google.com/a/answer/81126" target="_blank" rel="noopener noreferrer">Google: requisitos para remitentes de correo</a></li>
+          <li><a href="https://techcommunity.microsoft.com/blog/microsoftdefenderforoffice365blog/strengthening-email-ecosystem-outlook%E2%80%99s-new-requirements-for-high%E2%80%90volume-senders/4399730" target="_blank" rel="noopener noreferrer">Microsoft: nuevos requisitos de Outlook para remitentes de alto volumen</a></li>
+          <li><a href="https://www.rfc-editor.org/rfc/rfc9989" target="_blank" rel="noopener noreferrer">RFC 9989, DMARC</a> y <a href="https://www.rfc-editor.org/rfc/rfc7208" target="_blank" rel="noopener noreferrer">RFC 7208, SPF</a></li>
+          <li><a href="https://powerdmarc.com/latin-america-email-security/" target="_blank" rel="noopener noreferrer">PowerDMARC, estado de DMARC en América Latina 2026</a></li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <section class="wrap sec" id="glosario" aria-labelledby="glossary-title">
+    <h2 class="section-title" id="glossary-title">Glosario sin tecnicismos</h2>
+    <p class="section-intro">Cada término con una comparación del mundo real. Ábrelo para ver el detalle.</p>
+    <div class="glossary" id="glossary"></div>
+  </section>
+
+  <section class="wrap sec" id="legal" aria-labelledby="legal-title">
+    <h2 class="section-title" id="legal-title">Legal y ética</h2>
+    <p class="section-intro">Cómo trabaja esta herramienta, qué no hace nunca y qué datos trata.</p>
+    <div class="legal-cols">
+      <div class="legal-box yes">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Lo que hacemos</h3>
+        <ul>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Leer registros DNS públicos: los mismos que consulta cualquier servidor de correo cada vez que recibe un mensaje.</span></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Hacer el análisis dentro de tu navegador, sin servidor propio que guarde lo que escribes.</span></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Publicar el observatorio solo con cifras agregadas, sin nombres de organizaciones.</span></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Compartir resultados individuales solo de forma privada y por canales oficiales.</span></li>
+        </ul>
+      </div>
+      <div class="legal-box no">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>Lo que no hacemos nunca</h3>
+        <ul>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg><span>Enviar correos de prueba o falsos a nadie.</span></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg><span>Escanear puertos, equipos o servidores, ni intentar acceder a ningún sistema.</span></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg><span>Publicar listas de organizaciones vulnerables.</span></li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg><span>Guardar los dominios que consultas, usar cookies o rastrear quién eres.</span></li>
+        </ul>
+      </div>
     </div>
+    <div id="legal-folds"></div>
+    <p class="disclaimer">Esta sección explica nuestra forma de trabajar según nuestra lectura de la normativa. No es asesoría legal: si necesitas una opinión sobre tu caso, consulta con un abogado.</p>
+  </section>
+
+  <section class="wrap sec" id="preguntas" aria-labelledby="faq-title">
+    <h2 class="section-title" id="faq-title">Preguntas frecuentes</h2>
+    <div id="faq"></div>
   </section>
 </main>
 
 <footer class="foot">
-  <div class="wrap foot-grid">
-    <div>
-      <p><strong>Suplanta.do</strong> es un proyecto independiente de Julio Pujols, especialista en ciberseguridad en Santo Domingo.</p>
-      <p>El análisis es pasivo: solo lee registros DNS públicos, igual que cualquier servidor de correo del mundo. No envía correos, no escanea equipos y no garantiza ausencia de riesgo: DMARC no detiene dominios parecidos ni cuentas robadas.</p>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <p id="foot-author"></p>
+        <p>El análisis es pasivo: solo lee registros DNS públicos, igual que cualquier servidor de correo del mundo. No envía correos, no escanea equipos y no garantiza ausencia de riesgo: DMARC no detiene dominios parecidos ni cuentas robadas.</p>
+      </div>
+      <div id="contact"></div>
     </div>
-    <div id="contact"></div>
+    <p class="foot-legal" id="foot-legal"></p>
   </div>
 </footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /*__ENGINE__*/
 </script>
 <script>
 const DATA = /*__DATA__*/;
-const CONTACT = /*__CONTACT__*/;
+const SITE = /*__SITE__*/;
 /*__APP__*/
 </script>

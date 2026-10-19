@@ -1,6 +1,6 @@
 {
   "name": "suplantado",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Comprobación pasiva de suplantación de correo (SPF, DKIM, DMARC) y observatorio de República Dominicana.",
   "license": "SEE LICENSE IN LICENSE",
