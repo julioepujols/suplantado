@@ -24,8 +24,8 @@
   },
   "spoofable": 52,
   "spoofableCount": 118,
-  "fakeDelivered": 52,
-  "subdomainSpoofable": 54.6,
+  "fakeDelivered": 54.2,
+  "subdomainSpoofable": 55.5,
   "spf": {
    "missing": 9.7,
    "broken": 6.2,
@@ -151,8 +151,8 @@
    },
    "spoofable": 81.3,
    "spoofableCount": 13,
-   "fakeDelivered": 81.3,
-   "subdomainSpoofable": 81.3,
+   "fakeDelivered": 87.5,
+   "subdomainSpoofable": 87.5,
    "spf": {
     "missing": 25,
     "broken": 12.5,
@@ -340,7 +340,7 @@
    },
    "spoofable": 58.3,
    "spoofableCount": 7,
-   "fakeDelivered": 58.3,
+   "fakeDelivered": 66.7,
    "subdomainSpoofable": 66.7,
    "spf": {
     "missing": 8.3,
@@ -403,8 +403,8 @@
    },
    "spoofable": 57.1,
    "spoofableCount": 20,
-   "fakeDelivered": 57.1,
-   "subdomainSpoofable": 62.9,
+   "fakeDelivered": 62.9,
+   "subdomainSpoofable": 65.7,
    "spf": {
     "missing": 5.7,
     "broken": 8.6,
@@ -466,7 +466,7 @@
    },
    "spoofable": 53.6,
    "spoofableCount": 37,
-   "fakeDelivered": 53.6,
+   "fakeDelivered": 55.1,
    "subdomainSpoofable": 56.5,
    "spf": {
     "missing": 7.2,

@@ -443,11 +443,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
         <h3 class="section-title">El recorrido del correo falso</h3>
         <p class="section-intro">Simulamos lo que haría un servidor receptor (Gmail, Outlook) con un correo falsificado enviado desde un servidor del atacante, usando tus registros reales.</p>
         <div class="tabs" role="tablist" aria-label="Escenario de la simulación">
-          <button type="button" role="tab" id="tab-main" aria-selected="true" aria-controls="route">Tu dominio</button>
-          <button type="button" role="tab" id="tab-sub" aria-selected="false" aria-controls="route">Un subdominio inventado</button>
+          <button type="button" role="tab" id="tab-main" aria-selected="true" aria-controls="route-panel">Tu dominio</button>
+          <button type="button" role="tab" id="tab-sub" aria-selected="false" aria-controls="route-panel">Un subdominio inventado</button>
         </div>
-        <p class="route-from" id="route-from"></p>
-        <ol class="route" id="route" role="tabpanel"></ol>
+        <div id="route-panel" role="tabpanel" aria-labelledby="tab-main">
+          <p class="route-from" id="route-from"></p>
+          <ol class="route" id="route"></ol>
+        </div>
       </div>
 
       <div>
@@ -503,7 +505,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
           <div class="tip" id="tip" hidden></div>
           <details class="method">
             <summary>Ver como tabla</summary>
-            <div class="table-wrap"><table id="sector-table"></table></div>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla de resultados por sector"><table id="sector-table"></table></div>
           </details>
         </div>
       </div>

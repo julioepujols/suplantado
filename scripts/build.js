@@ -19,6 +19,7 @@ const contact = {
   linkedin: config.contact.linkedin || '',
   github: config.contact.github || '',
 };
+if (contact.email && !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(contact.email)) throw new Error('contact.email no es una dirección válida');
 for (const [key, value] of Object.entries(contact)) {
   if (key !== 'email' && value && !/^https:\/\//.test(value)) throw new Error(`contact.${key} debe usar https://`);
 }

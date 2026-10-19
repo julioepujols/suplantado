@@ -11,3 +11,6 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). V
 - Observatorio de República Dominicana con 227 organizaciones (datos agregados).
 - Sitio estático de un solo archivo con CSP por hash, fuentes incrustadas y cabeceras de seguridad.
 - Pruebas unitarias, de abuso y de extremo a extremo; integración continua con Semgrep, gitleaks y OSV-Scanner.
+
+### Seguridad
+- Revisión de seguridad independiente antes del lanzamiento: 6 hallazgos (1 alto, 1 medio, 2 bajos y 2 informativos), todos corregidos con pruebas de regresión. Detalle en `docs/revision-seguridad.md`.

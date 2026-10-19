@@ -288,3 +288,95 @@ test('remediación: conserva el rua existente y omite la fase de observación', 
   assert.ok(!plan.phases.some((ph) => /p=none/.test(ph.value)));
   assert.match(plan.phases[plan.phases.length - 1].value, /p=reject; sp=reject; np=reject/);
 });
+
+// --- Regresiones de la revisión de seguridad independiente (2026-10-19) ---
+
+const DM_REJECT = { '_dmarc.victima.do|TXT': { answers: [q('v=DMARC1; p=reject; sp=reject')] } };
+
+test('revisión #1: SPF abierto por vías indirectas es crítico y el correo falso pasa', async () => {
+  const casos = {
+    'include hacia +all': { 'victima.do|TXT': { answers: [q('v=spf1 include:proveedor.example -all')] }, 'proveedor.example|TXT': { answers: [q('v=spf1 +all')] } },
+    'ip6:::/0': { 'victima.do|TXT': { answers: [q('v=spf1 ip6:::/0 -all')] } },
+    'exists sin macro': { 'victima.do|TXT': { answers: [q('v=spf1 exists:victima.do -all')] }, 'victima.do|A': { answers: ['192.0.2.1'] } },
+  };
+  for (const [nombre, zona] of Object.entries(casos)) {
+    const r = await E.analyzeDomain('victima.do', { resolver: mockResolver(baseZone('victima.do', { ...DM_REJECT, ...zona })) });
+    assert.equal(r.verdict.level, 'critical', nombre);
+    assert.equal(r.simulation.disposition, 'delivered-pass', nombre);
+  }
+});
+
+test('revisión #1: -include hacia +all no se marca como abierto', async () => {
+  const r = await E.analyzeDomain('victima.do', { resolver: mockResolver(baseZone('victima.do', { ...DM_REJECT,
+    'victima.do|TXT': { answers: [q('v=spf1 -include:proveedor.example -all')] },
+    'proveedor.example|TXT': { answers: [q('v=spf1 +all')] },
+  })) });
+  assert.equal(r.spf.openToAll, false);
+  assert.equal(r.simulation.disposition, 'rejected');
+});
+
+test('revisión #2: la simulación no dice "rechazado" con +all inicial, rango amplio o pct', async () => {
+  const includes = Array.from({ length: 11 }, (_, i) => `include:p${i}.com`).join(' ');
+  const zonaMuchas = { 'victima.do|TXT': { answers: [q(`v=spf1 +all ${includes}`)] } };
+  for (let i = 0; i < 11; i++) zonaMuchas[`p${i}.com|TXT`] = { answers: [q('v=spf1 ip4:192.0.2.1 -all')] };
+  const plusAll = await E.analyzeDomain('victima.do', { resolver: mockResolver(baseZone('victima.do', { ...DM_REJECT, ...zonaMuchas })) });
+  assert.equal(plusAll.simulation.disposition, 'delivered-pass');
+
+  const rango = await E.analyzeDomain('victima.do', { resolver: mockResolver(baseZone('victima.do', { ...DM_REJECT,
+    'victima.do|TXT': { answers: [q('v=spf1 ip4:0.0.0.0/1 -all')] } })) });
+  assert.equal(rango.simulation.disposition, 'delivered-pass');
+  assert.equal(rango.simulation.spfAuthorizesAttacker, true);
+
+  const pct = await E.analyzeDomain('victima.do', { resolver: mockResolver(baseZone('victima.do', {
+    'victima.do|TXT': { answers: [q('v=spf1 -all')] },
+    '_dmarc.victima.do|TXT': { answers: [q('v=DMARC1; p=reject; pct=0')] } })) });
+  assert.equal(pct.simulation.disposition, 'quarantine');
+});
+
+test('revisión #3: dominio organizacional en sufijos genéricos de ccTLD', () => {
+  for (const [d, org] of [['correo.empresa.co.za', 'empresa.co.za'], ['empresa.com.sg', 'empresa.com.sg'], ['a.empresa.com.do', 'empresa.com.do'], ['mail.empresa.de', 'empresa.de'], ['www.empresa.com', 'empresa.com']]) {
+    assert.equal(E.organizationalDomain(d), org, d);
+  }
+});
+
+test('revisión #4: consultas acotadas ante rua masivo y nombres profundos', async () => {
+  const rua = Array.from({ length: 150 }, (_, i) => `mailto:r@d${i}.example`).join(',');
+  const dns = mockResolver(baseZone('hostil.do', {
+    'hostil.do|TXT': { answers: [q('v=spf1 -all')] },
+    '_dmarc.hostil.do|TXT': { answers: [q(`v=DMARC1; p=reject; rua=${rua}`)] },
+  }));
+  const r = await E.analyzeDomain('hostil.do', { resolver: dns, dkimSelectors: ['selector1'] });
+  assert.equal(r.dmarc.externalReports.length, 4);
+  assert.ok(r.issues.some((i) => i.code === 'dmarc-rua-too-many'));
+  assert.ok(dns.stats().queries < 30, `consultas: ${dns.stats().queries}`);
+
+  const profundo = Array.from({ length: 40 }, (_, i) => `l${i}`).join('.') + '.hostil.do';
+  const walk = mockResolver({});
+  await E.evaluateDmarc(profundo, walk);
+  assert.ok(walk.stats().queries <= 8, `consultas _dmarc: ${walk.stats().queries}`);
+});
+
+test('revisión #4: el resolver real impone un tope global de consultas', async () => {
+  const fakeFetch = async () => ({ ok: true, json: async () => ({ Status: 3 }) });
+  const dns = E.createResolver({ endpoints: ['https://x/q'], fetch: fakeFetch, maxQueries: 5 });
+  for (let i = 0; i < 5; i++) await dns.txt(`n${i}.do`);
+  const extra = await dns.txt('n99.do');
+  assert.equal(extra.status, 'ERROR');
+});
+
+test('revisión #5: la versión DMARC se valida con distinción de mayúsculas', async () => {
+  const minus = await E.evaluateDmarc('d.do', mockResolver({ '_dmarc.d.do|TXT': { answers: [q('v=dmarc1; p=reject')] } }));
+  assert.equal(minus.present, false);
+  const diez = await E.evaluateDmarc('d.do', mockResolver({ '_dmarc.d.do|TXT': { answers: [q('v=DMARC10; p=reject')] } }));
+  assert.equal(diez.present, false);
+  const mezcla = await E.evaluateDmarc('d.do', mockResolver({ '_dmarc.d.do|TXT': { answers: [q('v=DMARC1; p=reject'), q('v=dmarc1; p=none')] } }));
+  assert.equal(mezcla.present, true);
+  assert.equal(mezcla.appliedPolicy, 'reject');
+});
+
+test('endurecimiento: CAA genérico lineal y TXT acotado', () => {
+  const t0 = Date.now();
+  E.parseCaa('\\# 5 ' + ' '.repeat(65536) + 'zz');
+  assert.ok(Date.now() - t0 < 200);
+  assert.equal(E.parseTxtData('"' + 'a'.repeat(1_000_000) + '"').length, 4096);
+});

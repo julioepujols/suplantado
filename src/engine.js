@@ -21,6 +21,8 @@
   const SPF_LOOKUP_LIMIT = 10;
   const SPF_VOID_LIMIT = 2;
   const MAX_TXT_LENGTH = 4096;
+  const DMARC_WALK_LIMIT = 8;
+  const RUA_CHECK_LIMIT = 4;
 
   // Sufijos públicos de dos niveles relevantes para la región. Se usa solo para
   // estimar el dominio organizacional cuando se analiza un subdominio.
@@ -105,11 +107,21 @@
     return { ok: true, domain: host };
   }
 
+  // Segundos niveles genéricos bajo un ccTLD (com.sg, co.za, gov.in...). Aproximación
+  // mientras no se incluya una copia de la Public Suffix List.
+  const CCTLD_GENERIC_SLD = new Set(['com', 'co', 'net', 'org', 'gov', 'gob', 'edu', 'ac', 'or', 'ne', 'go', 'mil', 'gouv', 'gub', 'nic']);
+
+  function isMultiLabelSuffix(lastTwo) {
+    if (MULTI_LABEL_SUFFIXES.has(lastTwo)) return true;
+    const [sld, tld] = lastTwo.split('.');
+    return tld.length === 2 && CCTLD_GENERIC_SLD.has(sld);
+  }
+
   function organizationalDomain(domain) {
     const labels = domain.split('.');
     if (labels.length <= 2) return domain;
     const lastTwo = labels.slice(-2).join('.');
-    const take = MULTI_LABEL_SUFFIXES.has(lastTwo) ? 3 : 2;
+    const take = isMultiLabelSuffix(lastTwo) ? 3 : 2;
     return labels.slice(-take).join('.');
   }
 
@@ -122,7 +134,7 @@
     while (i < s.length && out.length < MAX_TXT_LENGTH) {
       if (s[i] !== '"') { i++; continue; }
       i++;
-      while (i < s.length && s[i] !== '"') {
+      while (i < s.length && s[i] !== '"' && out.length < MAX_TXT_LENGTH) {
         if (s[i] === '\\' && i + 1 < s.length) {
           const dec = /^\d{3}/.exec(s.slice(i + 1, i + 4));
           if (dec) { out += String.fromCharCode(Number(dec[0])); i += 4; continue; }
@@ -137,7 +149,7 @@
 
   function decodeGenericRdata(data) {
     // RFC 3597: "\# <len> <hex...>"
-    const m = /^\\#\s+(\d+)\s*([0-9a-fA-F\s]*)$/.exec(data.trim());
+    const m = /^\\#\s+(\d+)((?:\s+[0-9a-fA-F]{2})*)\s*$/.exec(data.trim());
     if (!m) return null;
     const hex = m[2].replace(/\s+/g, '');
     const bytes = [];
@@ -194,6 +206,7 @@
     const fetchImpl = options.fetch || (typeof fetch !== 'undefined' ? fetch.bind(globalThis) : null);
     const timeoutMs = options.timeoutMs || 6000;
     const maxConcurrent = options.concurrency || 6;
+    const maxQueries = options.maxQueries || 150;
     if (!fetchImpl) throw new Error('fetch no disponible');
 
     const cache = new Map();
@@ -234,6 +247,9 @@
       if (!type) throw new Error(`Tipo DNS no soportado: ${typeName}`);
       const key = `${name.toLowerCase()}|${type}`;
       if (cache.has(key)) return cache.get(key);
+      if (cache.size >= maxQueries) {
+        return { status: 'ERROR', ad: false, answers: [], cname: [], error: 'límite de consultas alcanzado' };
+      }
       const p = withSlot(async () => {
         let lastError = null;
         for (const endpoint of endpoints) {
@@ -315,8 +331,15 @@
     return result;
   }
 
+  function effectiveAll(node) {
+    let n = node;
+    while (n && !(n.terms || []).some((t) => t.mechanism === 'all')) n = (n.children || []).find((c) => c.viaRedirect);
+    const all = n && n.terms.find((t) => t.mechanism === 'all');
+    return all ? all.qualifier : null;
+  }
+
   async function evaluateSpf(domain, dns) {
-    const state = { lookups: 0, voids: 0, issues: [], ip4: [], exceeded: false };
+    const state = { lookups: 0, voids: 0, issues: [], ip4: [], ip6: [], openVia: [], exceeded: false };
 
     async function expand(name, depth, chain) {
       const node = { domain: name, record: null, terms: [], children: [], error: null };
@@ -343,6 +366,7 @@
 
       for (const term of parsed.terms) {
         if (term.mechanism === 'ip4') state.ip4.push({ cidr: term.value, qualifier: term.qualifier, via: name });
+        if (term.mechanism === 'ip6') state.ip6.push({ cidr: term.value, qualifier: term.qualifier, via: name });
         if (!['include', 'a', 'mx', 'ptr', 'exists'].includes(term.mechanism)) continue;
         state.lookups++;
         if (state.lookups > SPF_LOOKUP_LIMIT) { state.exceeded = true; continue; }
@@ -355,10 +379,14 @@
           }
           const child = await expand(target, depth + 1, chain.concat(target.toLowerCase()));
           if (child.error === 'none' || child.error === 'nxdomain') state.voids++;
+          if (term.qualifier === '+' && effectiveAll(child) === '+') state.openVia.push(`include:${target}`);
           node.children.push(child);
         } else if (term.mechanism === 'a' || term.mechanism === 'mx') {
           const r = await dns.resolve(target, term.mechanism === 'a' ? 'A' : 'MX');
           if (r.status === 'NXDOMAIN' || (r.status === 'NOERROR' && r.answers.length === 0)) state.voids++;
+        } else if (term.mechanism === 'exists' && term.qualifier === '+') {
+          const r = await dns.resolve(target, 'A');
+          if (r.answers.length) state.openVia.push(`exists:${target}`);
         }
       }
 
@@ -418,14 +446,7 @@
       (node.children || []).forEach(collectSyntax);
     })(tree);
 
-    let effective = tree;
-    while (!effective.terms.some((t) => t.mechanism === 'all')) {
-      const redirected = (effective.children || []).find((c) => c.viaRedirect);
-      if (!redirected) break;
-      effective = redirected;
-    }
-    const allTerm = effective.terms.find((t) => t.mechanism === 'all');
-    out.allQualifier = allTerm ? allTerm.qualifier : null;
+    out.allQualifier = effectiveAll(tree);
 
     if (state.exceeded || state.lookups > SPF_LOOKUP_LIMIT) {
       out.status = 'permerror';
@@ -460,6 +481,15 @@
     if (wideOpen) {
       out.issues.push(issue('critical', 'spf-wide-range', `El SPF autoriza el rango ${wideOpen.cidr} (vía ${wideOpen.via}): millones de direcciones pueden enviar como este dominio.`));
     }
+    const wideOpen6 = state.ip6.find((e) => e.qualifier === '+' && Number(e.cidr.split('/')[1] ?? 128) <= 32);
+    if (wideOpen6) {
+      out.issues.push(issue('critical', 'spf-wide-range', `El SPF autoriza el rango IPv6 ${wideOpen6.cidr} (vía ${wideOpen6.via}): cualquier servidor de ese bloque puede enviar como este dominio.`));
+    }
+    if (state.openVia.length) {
+      out.issues.push(issue('critical', 'spf-pass-all-indirect', `El SPF autoriza a cualquier servidor a través de ${state.openVia.join(', ')}.`));
+    }
+    const syntaxBroken = out.issues.some((i) => i.code === 'spf-syntax');
+    out.openToAll = !syntaxBroken && (out.allQualifier === '+' || out.issues.some((i) => i.code === 'spf-wide-range' || i.code === 'spf-pass-all-indirect'));
     if (tree.record && tree.record.length > 450) {
       out.issues.push(issue('warn', 'spf-long', 'El SPF es muy largo (más de 450 caracteres); algunos resolvers podrían truncarlo.'));
     }
@@ -473,11 +503,12 @@
   // --------------------------------------------------------------------- DMARC
 
   const DMARC_POLICIES = ['none', 'quarantine', 'reject'];
+  const DMARC_VERSION_RE = /^v[ \t]*=[ \t]*DMARC1[ \t]*(;|$)/;
 
   function parseDmarc(record) {
     const out = { tags: {}, errors: [], warnings: [], obsolete: [] };
     const parts = record.split(';').map((p) => p.trim()).filter(Boolean);
-    if (!parts.length || !/^v\s*=\s*DMARC1$/.test(parts[0])) {
+    if (!parts.length || !DMARC_VERSION_RE.test(record)) {
       out.errors.push('El registro debe empezar exactamente con "v=DMARC1".');
       return out;
     }
@@ -532,7 +563,7 @@
     const orgDomain = organizationalDomain(domain);
     const candidates = [domain];
     let cursor = domain;
-    while (cursor !== orgDomain && cursor.includes('.')) {
+    while (cursor !== orgDomain && cursor.includes('.') && candidates.length < DMARC_WALK_LIMIT) {
       cursor = cursor.slice(cursor.indexOf('.') + 1);
       candidates.push(cursor);
     }
@@ -546,7 +577,7 @@
         out.status = 'temperror';
         return out;
       }
-      records = res.records.filter((r) => /^v\s*=\s*DMARC1/i.test(r));
+      records = res.records.filter((r) => DMARC_VERSION_RE.test(r));
       if (records.length) { foundAt = candidate; break; }
     }
 
@@ -612,10 +643,15 @@
     }
 
     const org = organizationalDomain(foundAt);
-    for (const rd of reportDomains(t)) {
-      if (organizationalDomain(rd) === org) continue;
+    const external = [...new Set(reportDomains(t))].filter((rd) => organizationalDomain(rd) !== org);
+    if (external.length > RUA_CHECK_LIMIT) {
+      out.issues.push(issue('warn', 'dmarc-rua-too-many', `DMARC declara ${external.length} destinos externos de reportes; solo verificamos los primeros ${RUA_CHECK_LIMIT}.`));
+    }
+    const checks = await Promise.all(external.slice(0, RUA_CHECK_LIMIT).map(async (rd) => {
       const check = await dns.txt(`${foundAt}._report._dmarc.${rd}`);
-      const authorized = check.records.some((r) => /^v\s*=\s*DMARC1/i.test(r));
+      return { rd, check, authorized: check.records.some((r) => DMARC_VERSION_RE.test(r)) };
+    }));
+    for (const { rd, check, authorized } of checks) {
       out.externalReports.push({ domain: rd, authorized });
       if (!authorized && check.status !== 'ERROR') {
         out.issues.push(issue('warn', 'dmarc-rua-unauthorized', `Los reportes DMARC van a ${rd}, pero ese dominio no publica la autorización requerida; muchos receptores no enviarán los reportes.`));
@@ -741,7 +777,7 @@
 
   function spoofVerdict(report) {
     const { spf, dmarc } = report;
-    if (spf.allQualifier === '+' || spf.issues.some((i) => i.code === 'spf-wide-range')) {
+    if (spf.openToAll) {
       return { ...RISK.critical, headline: 'Cualquiera puede enviar correos como tu dominio y pasarán las verificaciones.', detail: 'Tu SPF autoriza a todo Internet. Un correo falso no solo llegaría: aparecería como legítimo.' };
     }
     if (!dmarc.present) {
@@ -810,10 +846,10 @@
 
     let spfResult;
     if (usingSub) spfResult = 'none';
+    else if (spf.openToAll || (spf.status === 'ok' && spfMatchesIp(spf, ATTACKER_IP))) spfResult = 'pass';
     else if (spf.status === 'none') spfResult = 'none';
     else if (spf.status === 'permerror') spfResult = 'permerror';
     else if (spf.status === 'temperror') spfResult = 'temperror';
-    else if (spf.allQualifier === '+' || spfMatchesIp(spf, ATTACKER_IP)) spfResult = 'pass';
     else spfResult = { '-': 'fail', '~': 'softfail', '?': 'neutral' }[spf.allQualifier] || 'neutral';
 
     const spfText = {
@@ -840,10 +876,10 @@
       dmarcText = 'SPF "pass" alineado con el remitente visible: DMARC da el correo por auténtico.';
     } else {
       const base = usingSub ? dmarc.nonexistentPolicy : dmarc.appliedPolicy;
-      const eff = effectivePolicy(base, dmarc.testing);
+      const eff = effectivePolicy(base, dmarc.testing || dmarc.partial);
       const finalPolicy = dmarc.partial && eff !== 'none' ? `${eff}*` : eff;
       disposition = { none: 'delivered', quarantine: 'quarantine', reject: 'rejected' }[eff];
-      dmarcText = `DMARC falla (ni SPF ni DKIM alineados). Política aplicada: "${finalPolicy.replace('*', '')}"${dmarc.partial ? ' (solo a una parte del correo)' : ''}${dmarc.testing ? ' (rebajada por modo prueba)' : ''}.`;
+      dmarcText = `DMARC falla (ni SPF ni DKIM alineados). Política aplicada: "${finalPolicy.replace('*', '')}"${dmarc.partial ? ` (peor caso: con pct=${dmarc.tags.pct}, el resto del correo recibe una política más suave)` : ''}${dmarc.testing ? ' (rebajada por modo prueba)' : ''}.`;
     }
     steps.push({ id: 'dmarc', title: 'Evaluación DMARC', result: dmarc.present ? (dmarcPass ? 'pass' : 'fail') : 'none', ok: disposition === 'rejected', bad: disposition !== 'rejected' && disposition !== 'quarantine', text: dmarcText });
 
@@ -853,7 +889,7 @@
       quarantine: { label: 'Enviado a spam', tone: 'medium', text: 'El correo falso termina en la carpeta de spam. Todavía puede ser abierto.' },
       rejected: { label: 'Rechazado', tone: 'low', text: 'El servidor receptor rechaza el correo falso. Nunca llega a la víctima.' },
     }[disposition];
-    return { from: `gerencia@${target}`, attackerIp: ATTACKER_IP, steps, outcome, disposition };
+    return { from: `gerencia@${target}`, attackerIp: ATTACKER_IP, spfAuthorizesAttacker: spfResult === 'pass', steps, outcome, disposition };
   }
 
   // ---------------------------------------------------------- remediación
