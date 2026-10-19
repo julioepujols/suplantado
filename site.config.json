@@ -1,8 +1,16 @@
 {
   "siteUrl": "https://suplantado.pages.dev",
+  "author": {
+    "name": "Julio Pujols",
+    "title": "Tecnólogo en Seguridad Informática (en formación)",
+    "city": "Santo Domingo, República Dominicana"
+  },
   "contact": {
-    "email": "",
-    "linkedin": "",
+    "email": "juepuri@hotmail.com",
+    "linkedin": "https://www.linkedin.com/in/julio-e-pujols-rivas",
     "github": "https://github.com/julioepujols"
+  },
+  "analytics": {
+    "cloudflareWebAnalytics": true
   }
 }

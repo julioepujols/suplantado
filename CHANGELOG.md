@@ -2,6 +2,20 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versiones según [SemVer](https://semver.org/lang/es/).
 
+## [1.1.0] - 2026-10-19
+
+### Añadido
+- Modo de lectura Simple o Técnica, con explicación "en palabras simples" de cada paso del recorrido del correo falso y un resumen para gerencia.
+- Recorrido postal animado bajo el sobre (SPF, DKIM, DMARC y destino), anillo de calificación y cifras del observatorio animadas, con respeto a `prefers-reduced-motion`.
+- Hallazgos, plan de corrección, detalle técnico, glosario, sección legal y ética y preguntas frecuentes en desplegables.
+- Observatorio diario: datos al cierre del día anterior e historial con gráfico de evolución (`data/history.json`).
+- Detección de Outlook.com (cuenta personal de Microsoft) como proveedor de correo.
+- Las organizaciones con errores DNS temporales persistentes quedan fuera del cálculo como "no concluyentes" (2 en el primer corte; el total analizado pasa de 227 a 225).
+- Métricas de uso opcionales con Cloudflare Web Analytics, sin cookies; la CSP solo las permite si están activadas en `site.config.json`.
+
+### Cambiado
+- Autoría y contacto se configuran en `site.config.json` (`author`, `contact`).
+
 ## [1.0.0] - 2026-10-19
 
 ### Añadido

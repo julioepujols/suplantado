@@ -6,42 +6,43 @@
   "scanned": 255,
   "notResolving": 19,
   "excluded": 9,
-  "analyzed": 227
+  "inconclusive": 2,
+  "analyzed": 225
  },
  "overall": {
-  "n": 227,
+  "n": 225,
   "dmarc": {
-   "missing": 26,
-   "none": 26,
-   "quarantine": 22,
-   "reject": 26,
+   "missing": 25.3,
+   "none": 26.2,
+   "quarantine": 22.2,
+   "reject": 26.2,
    "counts": {
-    "missing": 59,
+    "missing": 57,
     "none": 59,
     "quarantine": 50,
     "reject": 59
    }
   },
-  "spoofable": 52,
-  "spoofableCount": 118,
-  "fakeDelivered": 54.2,
-  "subdomainSpoofable": 55.5,
+  "spoofable": 51.6,
+  "spoofableCount": 116,
+  "fakeDelivered": 53.8,
+  "subdomainSpoofable": 55.1,
   "spf": {
-   "missing": 9.7,
+   "missing": 9.8,
    "broken": 6.2,
    "passAll": 0,
    "neutralOrNoAll": 0.9,
-   "hardfail": 58.1
+   "hardfail": 58.7
   },
-  "rua": 57.3,
-  "dkimFound": 72.2,
-  "dkimWeak": 35.2,
+  "rua": 57.8,
+  "dkimFound": 72.9,
+  "dkimWeak": 35.6,
   "mtaSts": 2.2,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
   "dnssec": 0.9,
   "bimi": 4,
-  "caa": 11,
+  "caa": 11.1,
   "avgScore": 53,
   "grades": [
    {
@@ -66,47 +67,47 @@
    },
    {
     "grade": "F",
-    "count": 69
+    "count": 67
    }
   ]
  },
  "sectors": [
   {
    "sector": "Salud",
-   "n": 12,
+   "n": 11,
    "dmarc": {
-    "missing": 41.7,
-    "none": 41.7,
+    "missing": 36.4,
+    "none": 45.5,
     "quarantine": 0,
-    "reject": 16.7,
+    "reject": 18.2,
     "counts": {
-     "missing": 5,
+     "missing": 4,
      "none": 5,
      "quarantine": 0,
      "reject": 2
     }
    },
-   "spoofable": 83.3,
-   "spoofableCount": 10,
-   "fakeDelivered": 83.3,
-   "subdomainSpoofable": 83.3,
+   "spoofable": 81.8,
+   "spoofableCount": 9,
+   "fakeDelivered": 81.8,
+   "subdomainSpoofable": 81.8,
    "spf": {
-    "missing": 8.3,
-    "broken": 8.3,
+    "missing": 9.1,
+    "broken": 9.1,
     "passAll": 0,
     "neutralOrNoAll": 0,
-    "hardfail": 33.3
+    "hardfail": 36.4
    },
-   "rua": 33.3,
-   "dkimFound": 75,
-   "dkimWeak": 25,
+   "rua": 36.4,
+   "dkimFound": 81.8,
+   "dkimWeak": 27.3,
    "mtaSts": 0,
    "mtaStsEnforce": 0,
    "tlsRpt": 0,
-   "dnssec": 8.3,
+   "dnssec": 9.1,
    "bimi": 0,
-   "caa": 8.3,
-   "avgScore": 42,
+   "caa": 9.1,
+   "avgScore": 44,
    "grades": [
     {
      "grade": "A",
@@ -130,7 +131,7 @@
     },
     {
      "grade": "F",
-     "count": 6
+     "count": 5
     }
    ]
   },
@@ -514,40 +515,40 @@
   },
   {
    "sector": "Banca y finanzas",
-   "n": 46,
+   "n": 45,
    "dmarc": {
-    "missing": 10.9,
-    "none": 6.5,
-    "quarantine": 21.7,
-    "reject": 60.9,
+    "missing": 8.9,
+    "none": 6.7,
+    "quarantine": 22.2,
+    "reject": 62.2,
     "counts": {
-     "missing": 5,
+     "missing": 4,
      "none": 3,
      "quarantine": 10,
      "reject": 28
     }
    },
-   "spoofable": 17.4,
-   "spoofableCount": 8,
-   "fakeDelivered": 17.4,
-   "subdomainSpoofable": 19.6,
+   "spoofable": 15.6,
+   "spoofableCount": 7,
+   "fakeDelivered": 15.6,
+   "subdomainSpoofable": 17.8,
    "spf": {
-    "missing": 4.3,
-    "broken": 10.9,
+    "missing": 4.4,
+    "broken": 11.1,
     "passAll": 0,
     "neutralOrNoAll": 0,
-    "hardfail": 63
+    "hardfail": 64.4
    },
-   "rua": 84.8,
-   "dkimFound": 87,
-   "dkimWeak": 45.7,
-   "mtaSts": 6.5,
+   "rua": 86.7,
+   "dkimFound": 88.9,
+   "dkimWeak": 46.7,
+   "mtaSts": 6.7,
    "mtaStsEnforce": 0,
-   "tlsRpt": 6.5,
+   "tlsRpt": 6.7,
    "dnssec": 0,
-   "bimi": 15.2,
-   "caa": 23.9,
-   "avgScore": 71,
+   "bimi": 15.6,
+   "caa": 24.4,
+   "avgScore": 72,
    "grades": [
     {
      "grade": "A",
@@ -571,7 +572,7 @@
     },
     {
      "grade": "F",
-     "count": 5
+     "count": 4
     }
    ]
   }
@@ -580,22 +581,22 @@
   {
    "id": "m365",
    "count": 116,
-   "share": 51.1
+   "share": 51.6
   },
   {
    "id": "google",
    "count": 35,
-   "share": 15.4
+   "share": 15.6
   },
   {
    "id": "other",
    "count": 33,
-   "share": 14.5
+   "share": 14.7
   },
   {
    "id": "sin-correo",
-   "count": 17,
-   "share": 7.5
+   "count": 15,
+   "share": 6.7
   },
   {
    "id": "cpanel",

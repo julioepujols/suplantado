@@ -2,7 +2,7 @@
 
 **¿Pueden enviar correos haciéndose pasar por tu empresa?** Suplanta.do responde esa pregunta en segundos para cualquier dominio. Muestra qué haría Gmail u Outlook con un correo falsificado y entrega los registros DNS exactos para impedirlo.
 
-Incluye el **primer observatorio público de suplantación de correo de República Dominicana**: 227 organizaciones analizadas en octubre de 2026. El 52% puede ser suplantado.
+Incluye el **primer observatorio público de suplantación de correo de República Dominicana**: 225 organizaciones, actualizado cada día con los datos al cierre del día anterior. En el primer corte, el 52% podía ser suplantado.
 
 [![CI](https://github.com/julioepujols/suplantado/actions/workflows/ci.yml/badge.svg)](https://github.com/julioepujols/suplantado/actions/workflows/ci.yml)
 
@@ -26,15 +26,15 @@ flowchart LR
   M --> V[Veredicto, simulación y plan]
 ```
 
-Todo ocurre en el navegador. No hay servidor propio, base de datos, cookies ni analítica. El dominio consultado solo viaja a los resolvers DNS públicos, igual que en cualquier consulta DNS. Ver [arquitectura](docs/arquitectura.md).
+Todo ocurre en el navegador. No hay servidor propio, base de datos ni cookies. Las métricas de visitas, si se activan, usan Cloudflare Web Analytics sin cookies y nunca ven el dominio consultado. El dominio consultado solo viaja a los resolvers DNS públicos, igual que en cualquier consulta DNS. Ver [arquitectura](docs/arquitectura.md).
 
 ## Seguridad por diseño
 
 | Control | Implementación |
 |---|---|
 | Contenido DNS hostil | Todo dato externo se pinta con `textContent`; ningún registro se interpreta como HTML. Cubierto por prueba de extremo a extremo |
-| Content Security Policy | `default-src 'none'`, scripts permitidos solo por hash SHA-256, `connect-src` limitado a los dos resolvers |
-| Sin terceros | Fuentes incrustadas, cero scripts externos, cero rastreadores |
+| Content Security Policy | `default-src 'none'`, scripts permitidos solo por hash SHA-256, `connect-src` limitado a los dos resolvers (más Cloudflare Web Analytics si se activa) |
+| Sin terceros | Fuentes incrustadas y ningún rastreador. Único script externo: las métricas opcionales de Cloudflare Web Analytics, sin cookies |
 | Cabeceras | HSTS, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` restrictiva |
 | Cadena de suministro | Sin dependencias en producción; Playwright fijado como única dependencia de desarrollo |
 | Verificación continua | Pruebas, Semgrep, gitleaks y OSV-Scanner en cada cambio |
@@ -47,10 +47,10 @@ Modelo de amenazas completo: [docs/modelo-amenazas.md](docs/modelo-amenazas.md).
 
 | Indicador | Resultado |
 |---|---|
-| Organizaciones analizadas | 227 (gobierno, banca, educación, salud, medios, telecom, empresas, transporte) |
+| Organizaciones analizadas | 225 (gobierno, banca, educación, salud, medios, telecom, empresas, transporte) |
 | Pueden ser suplantadas (sin DMARC o en `p=none`) | 52% |
 | Rechazan correos falsos (`p=reject`) | 26% |
-| Sector más expuesto / más protegido | Salud 83% suplantable / Banca 17% |
+| Sector más expuesto / más protegido | Salud 82% suplantable / Banca 16% |
 | Publican MTA-STS | 2.2% |
 
 Solo se publican cifras agregadas. Método, fuentes y limitaciones: [docs/metodologia.md](docs/metodologia.md).
@@ -95,7 +95,7 @@ Código publicado para revisión y portafolio. **Todos los derechos reservados**
 
 ## English summary
 
-Suplanta.do checks whether anyone can send email impersonating a domain. It reads only public DNS records (SPF, DKIM, DMARC per RFC 9989, MTA-STS, TLS-RPT, DNSSEC, CAA) over DNS-over-HTTPS, directly in the visitor's browser, with no backend, then simulates how a receiving server would treat a forged message and generates the exact DNS records to fix it. It also publishes the first email-spoofing observatory for the Dominican Republic: 52% of 227 organizations can be spoofed. Built with a strict hash-based CSP, zero third-party scripts, and unit, abuse, and end-to-end tests.
+Suplanta.do checks whether anyone can send email impersonating a domain. It reads only public DNS records (SPF, DKIM, DMARC per RFC 9989, MTA-STS, TLS-RPT, DNSSEC, CAA) over DNS-over-HTTPS, directly in the visitor's browser, with no backend, then simulates how a receiving server would treat a forged message and generates the exact DNS records to fix it. It also publishes the first email-spoofing observatory for the Dominican Republic: 52% of 225 organizations can be spoofed. Built with a strict hash-based CSP, no third-party scripts except optional cookie-free analytics, and unit, abuse, and end-to-end tests.
 
 ## Autor
 

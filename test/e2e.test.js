@@ -55,8 +55,19 @@ test('sitio publicado: análisis, simulación y seguridad', async (t) => {
     assert.match(await page.textContent('#mark-text'), /Puede llegar/);
     assert.equal(await page.evaluate(() => window.__pwned), undefined, 'el contenido DNS no debe ejecutarse');
     assert.equal(await page.locator('#r-tech img').count(), 0, 'el contenido DNS no debe convertirse en HTML');
+    assert.equal(await page.getAttribute('#stop-dmarc', 'data-state'), 'bad');
+    assert.equal(await page.getAttribute('#trail', 'data-at'), '3');
+    assert.equal(await page.textContent('#dest-label'), 'Puede llegar');
+    assert.match(await page.textContent('#r-brief'), /Qué significa/);
+    assert.ok(await page.isVisible('#route .plain'), 'el modo simple muestra la explicación en palabras simples');
+    assert.equal(await page.isVisible('#r-detail'), false);
+    await page.click('#mode-tech');
+    assert.equal(await page.getAttribute('#mode-tech', 'aria-pressed'), 'true');
+    assert.ok(await page.isVisible('#r-detail'), 'el modo técnico muestra el detalle');
+    await page.click('#mode-simple');
     await page.click('#tab-sub');
     assert.match(await page.textContent('#route-from'), /pagos\.ejemplo\.do/);
+    assert.match(await page.textContent('#foot-author'), /Tecnólogo en Seguridad Informática/);
     assert.deepEqual(problems, []);
     await context.close();
   });
@@ -75,6 +86,12 @@ test('sitio publicado: análisis, simulación y seguridad', async (t) => {
     await page.waitForFunction(() => document.getElementById('status').classList.contains('error'), null, { timeout: 20000 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
     assert.equal(overflow, false, 'sin desplazamiento horizontal en móvil');
+    assert.equal(await page.isVisible('#nav'), false, 'el menú empieza cerrado en móvil');
+    await page.click('#menu-btn');
+    assert.equal(await page.getAttribute('#menu-btn', 'aria-expanded'), 'true');
+    await page.click('#nav a[href="#glosario"]');
+    assert.equal(await page.isVisible('#nav'), false, 'el menú se cierra al elegir una sección');
+    assert.ok(await page.locator('#glossary details').count() >= 8);
     await context.close();
   });
 

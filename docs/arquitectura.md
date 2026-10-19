@@ -21,10 +21,11 @@ flowchart TB
 | Archivo | Responsabilidad |
 |---|---|
 | `src/engine.js` | Normaliza la entrada, consulta DNS y evalúa SPF, DMARC, DKIM, MX y controles adicionales. Calcula el veredicto, la puntuación, la simulación y el plan. Es un módulo UMD sin dependencias que funciona igual en navegador y en Node. |
-| `src/ui.js` | Pinta el informe, el sobre con matasellos, el observatorio y el contacto. Construye todo el DOM con `textContent`. |
+| `src/ui.js` | Pinta el informe (modo Simple o Técnico), el sobre con matasellos y el recorrido postal, el observatorio con su evolución, el glosario, la sección legal y el contacto. Construye todo el DOM con `textContent`. |
 | `src/app.html` | Plantilla: estilos, estructura y marcadores que la construcción reemplaza. |
 | `scripts/build.js` | Incrusta fuentes, motor, datos e interfaz; calcula los hashes SHA-256 de los scripts para la CSP y genera `dist/site/` (con `_headers`, `robots.txt`, `sitemap.xml`) y `dist/artifact.html`. |
 | `data/observatory.json` | Agregado del observatorio, sin nombres de organizaciones. |
+| `data/history.json` | Un punto por día (fecha, total, % suplantable, % en rechazo) para el gráfico de evolución. Lo actualiza el corte diario. |
 | `data/samples.json` | Informes de ejemplo que se muestran cuando no hay red: tres dominios globales reales y dos ficticios bajo el TLD reservado `.example`. |
 
 ## Flujo de un análisis

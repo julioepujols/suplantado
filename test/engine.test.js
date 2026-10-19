@@ -380,3 +380,10 @@ test('endurecimiento: CAA genérico lineal y TXT acotado', () => {
   assert.ok(Date.now() - t0 < 200);
   assert.equal(E.parseTxtData('"' + 'a'.repeat(1_000_000) + '"').length, 4096);
 });
+
+test('proveedor: Outlook.com personal se distingue de Microsoft 365', () => {
+  assert.equal(E.detectProvider(['1705594975.pamx1.hotmail.com']).id, 'outlookcom');
+  assert.equal(E.detectProvider(['hotmail-com.olc.protection.outlook.com']).id, 'outlookcom');
+  assert.equal(E.detectProvider(['empresa-do.mail.protection.outlook.com']).id, 'm365');
+  assert.equal(E.detectProvider(['hotmail.com.atacante.example']).id, 'other');
+});
