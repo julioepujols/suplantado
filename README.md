@@ -38,6 +38,8 @@ Todo ocurre en el navegador. No hay servidor propio, base de datos, cookies ni a
 | Cabeceras | HSTS, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` restrictiva |
 | Cadena de suministro | Sin dependencias en producción; Playwright fijado como única dependencia de desarrollo |
 | Verificación continua | Pruebas, Semgrep, gitleaks y OSV-Scanner en cada cambio |
+| Revisión independiente | 6 hallazgos confirmados con prueba de concepto, todos corregidos con pruebas de regresión. Ver [revisión de seguridad](docs/revision-seguridad.md) |
+| Accesibilidad | 0 violaciones WCAG 2.1 AA (axe-core) en modo claro y oscuro; navegable con teclado |
 
 Modelo de amenazas completo: [docs/modelo-amenazas.md](docs/modelo-amenazas.md). Para reportar una vulnerabilidad: [SECURITY.md](SECURITY.md).
 

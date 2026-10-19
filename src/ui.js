@@ -155,7 +155,11 @@
     const sim = simMode === 'main' ? current.simulation : current.subdomainSimulation;
     $('tab-main').setAttribute('aria-selected', String(simMode === 'main'));
     $('tab-sub').setAttribute('aria-selected', String(simMode === 'sub'));
-    $('route-from').replaceChildren('Correo falso de ', h('code', { text: sim.from }), ' enviado desde un servidor del atacante (', h('code', { text: sim.attackerIp }), ', dirección reservada para documentación).');
+    $('route-panel').setAttribute('aria-labelledby', simMode === 'main' ? 'tab-main' : 'tab-sub');
+    const origin = sim.spfAuthorizesAttacker
+      ? [' enviado desde cualquier servidor que el atacante elija: tu SPF lo autoriza.']
+      : [' enviado desde un servidor del atacante (', h('code', { text: sim.attackerIp }), ', dirección reservada para documentación).'];
+    $('route-from').replaceChildren('Correo falso de ', h('code', { text: sim.from }), ...origin);
     const items = sim.steps.map((s) => h('li', { 'data-state': s.bad ? 'bad' : s.ok ? 'ok' : 'warn' },
       h('h4', { text: s.title }), h('span', { class: 'code', text: `resultado: ${s.result}` }), h('p', { text: s.text })));
     const tone = sim.outcome.tone;
@@ -268,7 +272,7 @@
     const k = r.dkim;
     const kBody = h('div', { class: 'body' });
     if (k.found.length) {
-      kBody.append(h('div', { class: 'table-wrap' }, h('table', null,
+      kBody.append(h('div', { class: 'table-wrap', tabindex: '0', role: 'region', 'aria-label': 'Claves DKIM encontradas' }, h('table', null,
         h('thead', null, h('tr', null, h('th', { text: 'Selector' }), h('th', { text: 'Tipo' }), h('th', { class: 'num', text: 'Bits aprox.' }), h('th', { text: 'Estado' }))),
         h('tbody', null, k.found.map((x) => h('tr', null, h('td', { class: 'mono', text: x.selector }), h('td', { text: x.keyType }),
           h('td', { class: 'num', text: x.bits ? String(x.bits) : '—' }), h('td', { text: x.revoked ? 'Revocada' : !x.valid ? 'Inválida' : x.bits && x.bits < 2048 && x.keyType === 'rsa' ? 'Débil' : 'Correcta' })))))));
@@ -290,7 +294,7 @@
       ['CAA', x.caa.present, x.caa.present ? x.caa.records.map((c) => `${c.tag} ${c.value}`).join(', ') : 'No publicado', 'Limita quién puede emitir certificados HTTPS.'],
       ['BIMI', x.bimi.present, x.bimi.present ? 'Publicado' : 'No publicado', 'Muestra tu logo en la bandeja (requiere DMARC estricto).'],
     ];
-    const oBody = h('div', { class: 'body' }, h('div', { class: 'table-wrap' }, h('table', null,
+    const oBody = h('div', { class: 'body' }, h('div', { class: 'table-wrap', tabindex: '0', role: 'region', 'aria-label': 'Otros controles de seguridad' }, h('table', null,
       h('thead', null, h('tr', null, h('th', { text: 'Control' }), h('th', { text: 'Estado' }), h('th', { text: 'Para qué sirve' }))),
       h('tbody', null, rows.map(([name, ok, state, what]) => h('tr', null, h('td', { text: name }), h('td', null, statusPill(ok, state, state, 'info')), h('td', { text: what })))))));
     blocks.push(h('details', null, h('summary', null, 'Otros controles', h('span', { class: 'pill', 'data-tone': 'info', text: `${rows.filter((rw) => rw[1]).length} de ${rows.length}` })), oBody));
