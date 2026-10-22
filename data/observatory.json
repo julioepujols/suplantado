@@ -1,6 +1,6 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-10-20",
+ "scanDate": "2026-10-21",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
@@ -13,20 +13,20 @@
   "n": 225,
   "dmarc": {
    "missing": 25.3,
-   "none": 26.2,
-   "quarantine": 22.2,
+   "none": 25.8,
+   "quarantine": 22.7,
    "reject": 26.2,
    "counts": {
     "missing": 57,
-    "none": 59,
-    "quarantine": 50,
+    "none": 58,
+    "quarantine": 51,
     "reject": 59
    }
   },
-  "spoofable": 51.6,
-  "spoofableCount": 116,
-  "fakeDelivered": 53.8,
-  "subdomainSpoofable": 55.1,
+  "spoofable": 51.1,
+  "spoofableCount": 115,
+  "fakeDelivered": 53.3,
+  "subdomainSpoofable": 54.7,
   "spf": {
    "missing": 9.8,
    "broken": 6.2,
@@ -34,9 +34,9 @@
    "neutralOrNoAll": 0.9,
    "hardfail": 58.7
   },
-  "rua": 57.8,
+  "rua": 57.3,
   "dkimFound": 72.9,
-  "dkimWeak": 35.6,
+  "dkimWeak": 36,
   "mtaSts": 2.2,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
@@ -518,20 +518,20 @@
    "n": 45,
    "dmarc": {
     "missing": 8.9,
-    "none": 6.7,
-    "quarantine": 22.2,
+    "none": 4.4,
+    "quarantine": 24.4,
     "reject": 62.2,
     "counts": {
      "missing": 4,
-     "none": 3,
-     "quarantine": 10,
+     "none": 2,
+     "quarantine": 11,
      "reject": 28
     }
    },
-   "spoofable": 15.6,
-   "spoofableCount": 7,
-   "fakeDelivered": 15.6,
-   "subdomainSpoofable": 17.8,
+   "spoofable": 13.3,
+   "spoofableCount": 6,
+   "fakeDelivered": 13.3,
+   "subdomainSpoofable": 15.6,
    "spf": {
     "missing": 4.4,
     "broken": 11.1,
@@ -539,9 +539,9 @@
     "neutralOrNoAll": 0,
     "hardfail": 64.4
    },
-   "rua": 86.7,
+   "rua": 84.4,
    "dkimFound": 88.9,
-   "dkimWeak": 46.7,
+   "dkimWeak": 48.9,
    "mtaSts": 6.7,
    "mtaStsEnforce": 0,
    "tlsRpt": 6.7,
