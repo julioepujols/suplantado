@@ -1,6 +1,6 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-10-21",
+ "scanDate": "2026-10-22",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
@@ -36,7 +36,7 @@
   },
   "rua": 57.3,
   "dkimFound": 72.9,
-  "dkimWeak": 36,
+  "dkimWeak": 35.6,
   "mtaSts": 2.2,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
@@ -541,7 +541,7 @@
    },
    "rua": 84.4,
    "dkimFound": 88.9,
-   "dkimWeak": 48.9,
+   "dkimWeak": 46.7,
    "mtaSts": 6.7,
    "mtaStsEnforce": 0,
    "tlsRpt": 6.7,
