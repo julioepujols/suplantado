@@ -1,48 +1,48 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-10-29",
+ "scanDate": "2026-10-30",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
   "notResolving": 19,
   "excluded": 9,
-  "inconclusive": 2,
-  "analyzed": 225
+  "inconclusive": 3,
+  "analyzed": 224
  },
  "overall": {
-  "n": 225,
+  "n": 224,
   "dmarc": {
-   "missing": 25.3,
-   "none": 25.8,
-   "quarantine": 22.7,
-   "reject": 26.2,
+   "missing": 25.4,
+   "none": 25.4,
+   "quarantine": 22.8,
+   "reject": 26.3,
    "counts": {
     "missing": 57,
-    "none": 58,
+    "none": 57,
     "quarantine": 51,
     "reject": 59
    }
   },
-  "spoofable": 51.1,
-  "spoofableCount": 115,
-  "fakeDelivered": 53.3,
-  "subdomainSpoofable": 54.7,
+  "spoofable": 50.9,
+  "spoofableCount": 114,
+  "fakeDelivered": 53.1,
+  "subdomainSpoofable": 54.5,
   "spf": {
-   "missing": 10.2,
-   "broken": 6.2,
+   "missing": 9.8,
+   "broken": 6.3,
    "passAll": 0,
    "neutralOrNoAll": 0.9,
-   "hardfail": 58.7
+   "hardfail": 58.5
   },
-  "rua": 57.3,
-  "dkimFound": 72.9,
-  "dkimWeak": 35.6,
+  "rua": 57.6,
+  "dkimFound": 72.8,
+  "dkimWeak": 36.2,
   "mtaSts": 2.2,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
   "dnssec": 0.9,
   "bimi": 4,
-  "caa": 11.1,
+  "caa": 11.2,
   "avgScore": 53,
   "grades": [
    {
@@ -63,7 +63,7 @@
    },
    {
     "grade": "E",
-    "count": 27
+    "count": 26
    },
    {
     "grade": "F",
@@ -218,11 +218,11 @@
    "fakeDelivered": 62.5,
    "subdomainSpoofable": 62.5,
    "spf": {
-    "missing": 25,
+    "missing": 20.8,
     "broken": 0,
     "passAll": 0,
     "neutralOrNoAll": 4.2,
-    "hardfail": 54.2
+    "hardfail": 58.3
    },
    "rua": 45.8,
    "dkimFound": 66.7,
@@ -452,39 +452,39 @@
   },
   {
    "sector": "Gobierno",
-   "n": 69,
+   "n": 68,
    "dmarc": {
-    "missing": 20.3,
-    "none": 33.3,
-    "quarantine": 24.6,
-    "reject": 21.7,
+    "missing": 20.6,
+    "none": 32.4,
+    "quarantine": 25,
+    "reject": 22.1,
     "counts": {
      "missing": 14,
-     "none": 23,
+     "none": 22,
      "quarantine": 17,
      "reject": 15
     }
    },
-   "spoofable": 53.6,
-   "spoofableCount": 37,
-   "fakeDelivered": 55.1,
-   "subdomainSpoofable": 56.5,
+   "spoofable": 52.9,
+   "spoofableCount": 36,
+   "fakeDelivered": 54.4,
+   "subdomainSpoofable": 55.9,
    "spf": {
-    "missing": 7.2,
+    "missing": 7.4,
     "broken": 2.9,
     "passAll": 0,
     "neutralOrNoAll": 0,
-    "hardfail": 69.6
+    "hardfail": 67.6
    },
-   "rua": 59.4,
-   "dkimFound": 65.2,
-   "dkimWeak": 30.4,
-   "mtaSts": 1.4,
+   "rua": 60.3,
+   "dkimFound": 64.7,
+   "dkimWeak": 30.9,
+   "mtaSts": 1.5,
    "mtaStsEnforce": 0,
-   "tlsRpt": 1.4,
+   "tlsRpt": 1.5,
    "dnssec": 0,
    "bimi": 0,
-   "caa": 7.2,
+   "caa": 7.4,
    "avgScore": 53,
    "grades": [
     {
@@ -505,7 +505,7 @@
     },
     {
      "grade": "E",
-     "count": 11
+     "count": 10
     },
     {
      "grade": "F",
@@ -541,7 +541,7 @@
    },
    "rua": 84.4,
    "dkimFound": 88.9,
-   "dkimWeak": 46.7,
+   "dkimWeak": 48.9,
    "mtaSts": 6.7,
    "mtaStsEnforce": 0,
    "tlsRpt": 6.7,
@@ -580,8 +580,8 @@
  "providers": [
   {
    "id": "m365",
-   "count": 116,
-   "share": 51.6
+   "count": 115,
+   "share": 51.3
   },
   {
    "id": "google",
@@ -601,12 +601,12 @@
   {
    "id": "cpanel",
    "count": 12,
-   "share": 5.3
+   "share": 5.4
   },
   {
    "id": "proofpoint",
    "count": 10,
-   "share": 4.4
+   "share": 4.5
   },
   {
    "id": "zoho",
