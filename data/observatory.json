@@ -1,6 +1,6 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-11-02",
+ "scanDate": "2026-11-03",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
@@ -12,13 +12,13 @@
  "overall": {
   "n": 225,
   "dmarc": {
-   "missing": 25.3,
-   "none": 25.8,
+   "missing": 24.9,
+   "none": 26.2,
    "quarantine": 22.7,
    "reject": 26.2,
    "counts": {
-    "missing": 57,
-    "none": 58,
+    "missing": 56,
+    "none": 59,
     "quarantine": 51,
     "reject": 59
    }
@@ -28,15 +28,15 @@
   "fakeDelivered": 53.3,
   "subdomainSpoofable": 54.7,
   "spf": {
-   "missing": 9.8,
+   "missing": 10.2,
    "broken": 6.2,
    "passAll": 0,
    "neutralOrNoAll": 0.9,
-   "hardfail": 58.7
+   "hardfail": 58.2
   },
-  "rua": 57.3,
-  "dkimFound": 72.9,
-  "dkimWeak": 35.6,
+  "rua": 57.8,
+  "dkimFound": 73.3,
+  "dkimWeak": 36,
   "mtaSts": 2.2,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
@@ -51,11 +51,11 @@
    },
    {
     "grade": "B",
-    "count": 42
+    "count": 43
    },
    {
     "grade": "C",
-    "count": 45
+    "count": 44
    },
    {
     "grade": "D",
@@ -63,11 +63,11 @@
    },
    {
     "grade": "E",
-    "count": 27
+    "count": 28
    },
    {
     "grade": "F",
-    "count": 67
+    "count": 66
    }
   ]
  },
@@ -218,11 +218,11 @@
    "fakeDelivered": 62.5,
    "subdomainSpoofable": 62.5,
    "spf": {
-    "missing": 20.8,
+    "missing": 25,
     "broken": 0,
     "passAll": 0,
     "neutralOrNoAll": 4.2,
-    "hardfail": 58.3
+    "hardfail": 54.2
    },
    "rua": 45.8,
    "dkimFound": 66.7,
@@ -454,13 +454,13 @@
    "sector": "Gobierno",
    "n": 69,
    "dmarc": {
-    "missing": 20.3,
-    "none": 33.3,
+    "missing": 18.8,
+    "none": 34.8,
     "quarantine": 24.6,
     "reject": 21.7,
     "counts": {
-     "missing": 14,
-     "none": 23,
+     "missing": 13,
+     "none": 24,
      "quarantine": 17,
      "reject": 15
     }
@@ -476,8 +476,8 @@
     "neutralOrNoAll": 0,
     "hardfail": 68.1
    },
-   "rua": 59.4,
-   "dkimFound": 65.2,
+   "rua": 60.9,
+   "dkimFound": 66.7,
    "dkimWeak": 30.4,
    "mtaSts": 1.4,
    "mtaStsEnforce": 0,
@@ -493,11 +493,11 @@
     },
     {
      "grade": "B",
-     "count": 9
+     "count": 10
     },
     {
      "grade": "C",
-     "count": 16
+     "count": 15
     },
     {
      "grade": "D",
@@ -505,11 +505,11 @@
     },
     {
      "grade": "E",
-     "count": 11
+     "count": 12
     },
     {
      "grade": "F",
-     "count": 17
+     "count": 16
     }
    ]
   },
@@ -541,7 +541,7 @@
    },
    "rua": 84.4,
    "dkimFound": 88.9,
-   "dkimWeak": 46.7,
+   "dkimWeak": 48.9,
    "mtaSts": 6.7,
    "mtaStsEnforce": 0,
    "tlsRpt": 6.7,
@@ -580,8 +580,8 @@
  "providers": [
   {
    "id": "m365",
-   "count": 116,
-   "share": 51.6
+   "count": 115,
+   "share": 51.1
   },
   {
    "id": "google",
@@ -595,8 +595,8 @@
   },
   {
    "id": "sin-correo",
-   "count": 15,
-   "share": 6.7
+   "count": 16,
+   "share": 7.1
   },
   {
    "id": "cpanel",
