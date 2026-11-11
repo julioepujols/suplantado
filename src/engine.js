@@ -686,6 +686,21 @@
     return { keyType, bits, revoked: false, valid: true };
   }
 
+  // Une los selectores por defecto con los que aporte el usuario, sin duplicados.
+  // Solo acepta etiquetas DNS válidas para que un selector no pueda alterar el nombre consultado.
+  function mergeDkimSelectors(custom = []) {
+    const list = Array.isArray(custom) ? custom : [];
+    const out = [...DKIM_SELECTORS];
+    const seen = new Set(out);
+    for (const raw of list) {
+      const sel = String(raw == null ? '' : raw).trim().toLowerCase();
+      if (!/^[a-z0-9_]([a-z0-9_-]{0,61}[a-z0-9_])?$/.test(sel) || seen.has(sel)) continue;
+      seen.add(sel);
+      out.push(sel);
+    }
+    return out;
+  }
+
   async function evaluateDkim(domain, dns, selectors = DKIM_SELECTORS) {
     const found = [];
     const pendingCname = [];
@@ -1010,7 +1025,7 @@
       evaluateMx(domain, dns),
       evaluateSpf(domain, dns),
       evaluateDmarc(domain, dns),
-      evaluateDkim(domain, dns, options.dkimSelectors),
+      evaluateDkim(domain, dns, options.dkimSelectors || mergeDkimSelectors(options.customDkimSelectors)),
       evaluateExtras(domain, dns, { fetchMtaStsPolicy: options.fetchMtaStsPolicy, fetch: options.fetch || (typeof fetch !== 'undefined' ? fetch.bind(globalThis) : null) }),
     ]);
 
@@ -1037,7 +1052,7 @@
   }
 
   return {
-    TYPE, DOH_ENDPOINTS, DKIM_SELECTORS,
+    TYPE, DOH_ENDPOINTS, DKIM_SELECTORS, mergeDkimSelectors,
     normalizeDomain, organizationalDomain, parseTxtData, parseCaa, parseMx,
     parseSpf, parseDmarc, estimateDkimKey, cidrContains, detectProvider,
     createResolver, evaluateSpf, evaluateDmarc, evaluateDkim, evaluateMx, evaluateExtras,
