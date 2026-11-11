@@ -5,3 +5,6 @@ dist/
 Thumbs.db
 .env
 .env.*
+
+dossier-*.pdf
+*.pdf
