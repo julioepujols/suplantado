@@ -1,5 +1,5 @@
 'use strict';
-// Informe ejecutivo en PDF de un dominio (SPF, DKIM, DMARC, simulación y remediación).
+// Informe en PDF de un dominio: resumen para la dirección (página 1) y detalle para TI (página 2).
 // Uso: node scripts/generate-dossier.js <dominio> [--selector=<dkim>]...
 // Salida: dossier-<dominio>.pdf en el directorio actual. No escribe nada más en disco.
 const fs = require('node:fs');
@@ -7,6 +7,8 @@ const path = require('node:path');
 const E = require('../src/engine.js');
 
 const TZ = 'America/Santo_Domingo';
+const ROOT = path.join(__dirname, '..');
+const SITE = JSON.parse(fs.readFileSync(path.join(ROOT, 'site.config.json'), 'utf8'));
 
 function usage(msg) {
   if (msg) console.error(`Error: ${msg}\n`);
@@ -32,82 +34,204 @@ function parseArgs(argv) {
 
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-const TONE = { critical: '#b91c1c', high: '#c2410c', medium: '#a16207', low: '#15803d' };
+const font = (file) => fs.readFileSync(path.join(ROOT, 'assets', 'fonts', file)).toString('base64');
 
-function dmarcPolicyLabel(d) {
-  if (!d.present) return 'Sin DMARC';
-  const p = d.appliedPolicy || d.policy || 'none';
-  return `p=${p}${d.testing ? ' (modo prueba)' : ''}${d.partial ? ` (pct=${d.tags.pct})` : ''}`;
-}
+const RISK = {
+  critical: { ink: '#c4283a', bg: '#fbe9eb' },
+  high: { ink: '#a8470c', bg: '#fcefe6' },
+  medium: { ink: '#7d5700', bg: '#fbf3df' },
+  low: { ink: '#11683a', bg: '#e6f4ec' },
+};
+const SEVERITY = {
+  critical: { label: 'Crítico', order: 0, tone: 'critical' },
+  high: { label: 'Alto', order: 1, tone: 'high' },
+  warn: { label: 'Medio', order: 2, tone: 'medium' },
+  info: { label: 'Info', order: 3, tone: 'low' },
+};
+const STEP_RESULT = { pass: 'Pasa', fail: 'Falla', none: 'Sin firma', softfail: 'Falla leve', neutral: 'Neutral', permerror: 'Error', temperror: 'Error' };
 
-function statusRows(r) {
-  const { spf, dkim, dmarc } = r;
-  const spfState = !spf.present ? 'No publicado'
-    : spf.status === 'ok' ? `Válido, cierre "${spf.allQualifier ? spf.allQualifier + 'all' : 'sin all'}" (${spf.lookups} consultas DNS)`
-      : `Con errores (${spf.status})`;
-  const dkimState = dkim.active > 0
-    ? `${dkim.active} clave(s) activa(s): ${dkim.found.filter((k) => !k.revoked && k.valid).map((k) => `${k.selector}${k.bits ? ` ~${k.bits} bits` : ''}`).join(', ')}`
-    : `No encontrada en ${dkim.selectorsTested} selectores probados`;
-  const dmarcState = dmarc.present
-    ? `Publicado, ${dmarcPolicyLabel(dmarc)}; subdominios: ${dmarc.subdomainPolicy || 'igual'}; reportes: ${dmarc.reporting ? 'sí' : 'no'}`
-    : 'No publicado';
+function brief(r) {
+  const d = r.domain;
+  const main = r.simulation.disposition;
+  const subOk = r.subdomainSimulation.disposition === 'rejected';
+  if (main === 'rejected') {
+    return [
+      ['Qué significa', `Los correos falsos que usan exactamente ${d} son rechazados antes de llegar.`],
+      ['Riesgo que queda', 'Dominios parecidos (con un guion o una letra cambiada) y cuentas de correo robadas. DMARC no detiene esos casos.'],
+      ['Qué hacer', subOk
+        ? 'Revisar los reportes DMARC con regularidad y confirmar por teléfono todo cambio de cuenta bancaria de un proveedor.'
+        : 'Proteger también los subdominios inventados (sp=reject y np=reject) y confirmar por teléfono todo cambio de cuenta bancaria.'],
+    ];
+  }
+  if (main === 'quarantine') {
+    return [
+      ['Qué significa', `Los correos falsos con el nombre de ${d} terminan en spam. La protección es parcial.`],
+      ['Riesgo para el negocio', 'Un empleado o un cliente todavía puede abrir el correo falso desde la carpeta de spam y seguir sus instrucciones.'],
+      ['Qué hacer', 'Subir DMARC a rechazo cuando los reportes confirmen que todo el correo legítimo pasa. Suele tomar de 2 a 4 semanas.'],
+    ];
+  }
   return [
-    ['SPF', spfState, spf.record],
-    ['DKIM', dkimState, null],
-    ['DMARC', dmarcState, dmarc.record],
+    ['Qué significa', main === 'delivered-pass'
+      ? `Cualquiera puede enviar correos que aparentan salir de ${d}, y pasan como legítimos.`
+      : `Cualquiera puede enviar correos que aparentan salir de ${d}, y ninguna regla del dominio indica rechazarlos.`],
+    ['Riesgo para el negocio', 'Fraudes de pago a clientes y proveedores ("cambiamos de cuenta bancaria"), robo de contraseñas y daño a la reputación de la marca.'],
+    ['Qué hacer', 'Que TI o el proveedor de correo aplique el plan de la página 2. Se hace de forma gradual en 4 a 8 semanas y casi nunca requiere comprar productos.'],
   ];
 }
 
-function remediationHtml(items) {
-  return items.slice(0, 6).map((it, i) => {
-    const recs = (it.records || []).map((x) => `<code>${esc(x.type)} ${esc(x.name)}  ${esc(x.value)}</code>`).join('');
-    const phases = (it.phases || []).map((p) => `<code>${esc(p.label)}: ${esc(p.type)} ${esc(p.name)}  ${esc(p.value)}</code>`).join('');
-    return `<li><strong>${esc(it.title)}</strong> <span class="pri">P${esc(it.priority)}</span><br>${esc(it.why)}${recs}${phases}<div class="note">${esc(it.note)}</div></li>`.replace('<li>', `<li value="${i + 1}">`);
-  }).join('');
+function strengths(r) {
+  const { spf, dkim, dmarc, extras } = r;
+  const out = [];
+  if (spf.present && spf.status === 'ok' && spf.allQualifier === '-') out.push('SPF cerrado con "-all": solo los servidores listados pueden enviar.');
+  else if (spf.present && spf.status === 'ok' && spf.allQualifier === '~') out.push('SPF publicado y válido.');
+  if (dkim.active > 0) out.push(`El correo se firma con DKIM (${dkim.active} ${dkim.active === 1 ? 'clave activa' : 'claves activas'}).`);
+  if (dmarc.present && dmarc.appliedPolicy === 'reject' && !dmarc.partial) out.push('DMARC en rechazo: los correos falsos con el dominio exacto se descartan.');
+  else if (dmarc.present) out.push('DMARC publicado: el primer paso ya está dado.');
+  if (dmarc.reporting) out.push('Recibe reportes DMARC de quién envía correo con el dominio.');
+  if (extras.mtaSts.present) out.push('Publica MTA-STS para exigir cifrado del correo entrante.');
+  if (extras.dnssec.validated) out.push('DNS firmado con DNSSEC.');
+  if (extras.caa.present) out.push('Restringe con CAA quién emite sus certificados.');
+  return out;
+}
+
+function ring(score, color) {
+  const c = 2 * Math.PI * 34;
+  const off = c * (1 - Math.max(0, Math.min(100, score.total)) / 100);
+  return `<svg class="ring" viewBox="0 0 88 88" aria-hidden="true">
+<circle cx="44" cy="44" r="34" fill="none" stroke="#d3dbe8" stroke-width="8"/>
+<circle cx="44" cy="44" r="34" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 44 44)"/>
+<text x="44" y="52" text-anchor="middle" font-size="26" font-weight="700" fill="#10203a">${esc(score.grade)}</text></svg>`;
+}
+
+function flow(sim) {
+  const steps = sim.steps.map((s) => {
+    const tone = s.ok ? 'low' : s.bad ? 'critical' : 'medium';
+    return `<div class="step"><div class="step-name">${esc(s.title)}</div><div class="chip ${tone}">${esc(STEP_RESULT[s.result] || s.result)}</div><p>${esc(s.text)}</p></div>`;
+  }).join('<div class="arrow">→</div>');
+  const tone = RISK[sim.outcome.tone] ? sim.outcome.tone : 'high';
+  return `<div class="flow">${steps}</div>
+<div class="outcome ${tone}"><strong>Resultado: ${esc(sim.outcome.label)}.</strong> ${esc(sim.outcome.text)}</div>`;
+}
+
+function findings(r) {
+  const items = [...r.issues].sort((a, b) => (SEVERITY[a.severity]?.order ?? 9) - (SEVERITY[b.severity]?.order ?? 9));
+  if (!items.length) return '<p class="muted">No se encontraron hallazgos.</p>';
+  return `<table class="findings">${items.map((i) => {
+    const s = SEVERITY[i.severity] || SEVERITY.info;
+    return `<tr><td class="sev"><span class="chip ${s.tone}">${esc(s.label)}</span></td><td>${esc(i.message)}</td></tr>`;
+  }).join('')}</table>`;
+}
+
+function records(r) {
+  const { spf, dkim, dmarc } = r;
+  const keys = dkim.found.filter((k) => !k.revoked && k.valid)
+    .map((k) => `${k.selector}${k.bits ? ` (~${k.bits} bits)` : ''}`).join(', ');
+  const rows = [
+    ['SPF', spf.record || 'No publicado'],
+    ['DKIM', keys || `Ninguna clave encontrada en ${dkim.selectorsTested} selectores comunes`],
+    ['DMARC', dmarc.record || 'No publicado'],
+  ];
+  return `<table class="records">${rows.map(([k, v]) => `<tr><th>${k}</th><td><code>${esc(v)}</code></td></tr>`).join('')}</table>`;
+}
+
+function remediation(items) {
+  if (!items.length) return '<p class="muted">No hay acciones pendientes.</p>';
+  return `<ol class="plan">${items.slice(0, 6).map((it) => {
+    const lines = [...(it.phases || []).map((p) => [p.label, `${p.type} ${p.name}`, p.value]), ...(it.records || []).map((x) => ['', `${x.type} ${x.name}`, x.value])];
+    const recs = lines.map(([label, where, value]) => `<div class="rec">${label ? `<span class="rec-label">${esc(label)}</span>` : ''}<span class="rec-where">${esc(where)}</span><code>${esc(value)}</code></div>`).join('');
+    return `<li><div class="plan-head"><strong>${esc(it.title)}</strong><span class="pri">P${esc(it.priority)}</span></div><p>${esc(it.why)}</p>${recs}${it.note ? `<p class="muted">${esc(it.note)}</p>` : ''}</li>`;
+  }).join('')}</ol>`;
 }
 
 function buildHtml(r) {
   const when = new Date(r.analyzedAt).toLocaleString('es-DO', { timeZone: TZ, dateStyle: 'long', timeStyle: 'short' });
-  const color = TONE[r.verdict.level] || '#334155';
-  const sim = r.simulation;
-  const rows = statusRows(r).map(([k, v, rec]) =>
-    `<tr><th>${k}</th><td>${esc(v)}${rec ? `<code>${esc(rec)}</code>` : ''}</td></tr>`).join('');
-  const steps = sim.steps.map((s) => `<li><strong>${esc(s.title)}</strong> (${esc(s.result)}): ${esc(s.text)}</li>`).join('');
+  const risk = RISK[r.verdict.level] || RISK.high;
+  const good = strengths(r);
+  const author = SITE.author || {};
+  const contact = SITE.contact || {};
+  const site = (SITE.siteUrl || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
   return `<!doctype html><html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
-<title>Informe ejecutivo ${esc(r.domain)}</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:">
+<title>Informe de suplantación de correo: ${esc(r.domain)}</title>
 <style>
-@page { size: A4; margin: 16mm 15mm; }
-body { font: 10pt/1.4 "Segoe UI", Arial, sans-serif; color: #0f172a; margin: 0; }
-header { border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 10px; }
-h1 { font-size: 17pt; margin: 0; } h2 { font-size: 11.5pt; margin: 14px 0 5px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; }
-.meta { color: #475569; font-size: 9pt; }
-.verdict { display: flex; gap: 14px; align-items: center; border: 2px solid ${color}; border-radius: 6px; padding: 8px 12px; }
-.verdict .lvl { font-size: 18pt; font-weight: 700; color: ${color}; }
-.verdict .score { margin-left: auto; text-align: center; font-size: 20pt; font-weight: 700; color: ${color}; line-height: 1; }
-.verdict .score small { display: block; font-size: 8pt; font-weight: 400; color: #475569; }
-table { width: 100%; border-collapse: collapse; } th, td { text-align: left; vertical-align: top; padding: 4px 6px; border-bottom: 1px solid #e2e8f0; }
-th { width: 14%; }
-code { display: block; font: 8pt Consolas, monospace; background: #f1f5f9; padding: 2px 4px; margin-top: 3px; word-break: break-all; }
-ol, ul { margin: 4px 0; padding-left: 20px; } li { margin-bottom: 5px; break-inside: avoid; }
-.pri { font-size: 8pt; color: #475569; border: 1px solid #94a3b8; border-radius: 3px; padding: 0 3px; }
-.note { color: #475569; font-size: 9pt; }
-.outcome { border-left: 4px solid ${TONE[sim.outcome.tone] || '#334155'}; padding: 4px 10px; background: #f8fafc; margin-top: 6px; }
-footer { margin-top: 12px; font-size: 8pt; color: #64748b; }
+@font-face { font-family: Archivo; src: url(data:font/woff2;base64,${font('archivo.woff2')}) format('woff2'); font-weight: 100 900; }
+@font-face { font-family: Plex; src: url(data:font/woff2;base64,${font('plex400.woff2')}) format('woff2'); font-weight: 400; }
+@page { size: A4; margin: 14mm 15mm 16mm; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 9.6pt/1.45 Archivo, Arial, sans-serif; color: #10203a; }
+h2 { font-size: 11.5pt; margin: 0 0 6px; letter-spacing: .01em; }
+p { margin: 0; }
+.muted { color: #5d6982; font-size: 8.6pt; }
+code { font: 7.8pt/1.45 Plex, Consolas, monospace; overflow-wrap: anywhere; }
+section { margin-top: 14px; }
+.brand { display: flex; justify-content: space-between; align-items: center; color: #44526d; font-size: 8.4pt; border-bottom: 1px solid #d3dbe8; padding-bottom: 6px; }
+.brand b { color: #10203a; font-size: 10pt; letter-spacing: .02em; }
+.brand b span { color: #c01f35; }
+.title { margin-top: 14px; }
+.title .kicker { font-size: 9pt; color: #1c4e9e; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+.title h1 { font-size: 24pt; line-height: 1.1; margin: 2px 0 2px; overflow-wrap: anywhere; }
+.verdict { display: flex; align-items: center; gap: 16px; margin-top: 12px; padding: 12px 16px; border-radius: 10px; background: ${risk.bg}; border-left: 5px solid ${risk.ink}; }
+.verdict .lvl { color: ${risk.ink}; font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: .08em; }
+.verdict .head { font-size: 13.5pt; font-weight: 700; line-height: 1.25; margin: 2px 0 4px; }
+.verdict .body { flex: 1; }
+.score { text-align: center; }
+.ring { width: 78px; height: 78px; display: block; }
+.score small { display: block; color: #44526d; font-size: 8pt; margin-top: 2px; }
+dl.brief { display: grid; grid-template-columns: 30% 70%; margin: 0; border-top: 1px solid #d3dbe8; }
+dl.brief dt, dl.brief dd { margin: 0; padding: 7px 0; border-bottom: 1px solid #d3dbe8; }
+dl.brief dt { font-weight: 700; padding-right: 12px; }
+.flow { display: flex; align-items: stretch; gap: 6px; }
+.step { flex: 1; border: 1px solid #d3dbe8; border-radius: 8px; padding: 8px 10px; }
+.step-name { font-weight: 700; font-size: 9pt; }
+.step p { font-size: 8.2pt; color: #44526d; margin-top: 4px; }
+.arrow { align-self: center; color: #7d889d; font-size: 14pt; }
+.chip { display: inline-block; font-size: 7.6pt; font-weight: 700; padding: 1px 7px; border-radius: 999px; margin-top: 3px; }
+.chip.critical { color: #c4283a; background: #fbe9eb; } .chip.high { color: #a8470c; background: #fcefe6; }
+.chip.medium { color: #7d5700; background: #fbf3df; } .chip.low { color: #11683a; background: #e6f4ec; }
+.outcome { margin-top: 8px; padding: 8px 12px; border-radius: 8px; }
+.outcome.critical { background: #fbe9eb; } .outcome.high { background: #fcefe6; } .outcome.medium { background: #fbf3df; } .outcome.low { background: #e6f4ec; }
+.note-sim { margin-top: 5px; }
+ul.good { margin: 0; padding-left: 0; list-style: none; columns: 2; column-gap: 18px; }
+ul.good li { padding-left: 16px; position: relative; margin-bottom: 4px; break-inside: avoid; }
+ul.good li::before { content: "✓"; position: absolute; left: 0; color: #11683a; font-weight: 700; }
+.tech { break-before: page; }
+table { width: 100%; border-collapse: collapse; }
+table th, table td { text-align: left; vertical-align: top; padding: 5px 6px; border-bottom: 1px solid #e3e8f1; }
+table.records th { width: 13%; font-size: 9pt; }
+td.sev { width: 13%; }
+ol.plan { margin: 0; padding-left: 18px; }
+ol.plan li { margin-bottom: 9px; break-inside: avoid; }
+.plan-head { display: flex; gap: 8px; align-items: baseline; }
+.pri { font-size: 7.4pt; color: #44526d; border: 1px solid #b6c1d3; border-radius: 4px; padding: 0 4px; }
+.rec { margin-top: 4px; padding: 5px 8px; background: #f5f7fb; border-radius: 6px; }
+.rec-label { font-weight: 700; font-size: 8pt; margin-right: 6px; }
+.rec-where { font: 7.8pt Plex, Consolas, monospace; color: #1c4e9e; display: block; }
+.about { margin-top: 14px; padding: 10px 12px; border: 1px solid #d3dbe8; border-radius: 8px; font-size: 8.4pt; color: #44526d; break-inside: avoid; }
+.about strong { color: #10203a; }
 </style></head><body>
-<header><h1>Informe de suplantación de correo: ${esc(r.domain)}</h1>
-<div class="meta">Análisis: ${esc(when)} (AST) · Comprobación pasiva de DNS público · Suplanta.do</div></header>
-<div class="verdict"><div><div class="lvl">Riesgo ${esc(r.verdict.label)}</div><div>${esc(r.verdict.headline)}</div></div>
-<div class="score">${esc(r.score.total)}/100 · ${esc(r.score.grade)}<small>puntuación</small></div></div>
-<h2>Estado de la autenticación</h2><table>${rows}</table>
-<h2>Simulación del vector de suplantación</h2>
-<div class="meta">Un atacante envía un correo como <code style="display:inline">${esc(sim.from)}</code> desde la IP de documentación ${esc(sim.attackerIp)}.</div>
-<ol>${steps}</ol>
-<div class="outcome"><strong>${esc(sim.outcome.label)}.</strong> ${esc(sim.outcome.text)}</div>
-<h2>Remediación recomendada para TI</h2>
-${r.remediation.length ? `<ol>${remediationHtml(r.remediation)}</ol>` : '<p>No hay acciones pendientes de prioridad.</p>'}
-<footer>DMARC no detiene dominios parecidos (typosquatting) ni cuentas comprometidas. Informe generado localmente; no se almacenó ningún dato aparte de este PDF.</footer>
+<div class="brand"><b>Suplanta<span>.do</span></b><span>Informe confidencial para ${esc(r.domain)}</span></div>
+<div class="title"><div class="kicker">Informe de suplantación de correo</div><h1>${esc(r.domain)}</h1>
+<div class="muted">Análisis del ${esc(when)} (hora de República Dominicana) · Lectura pasiva de registros DNS públicos</div></div>
+<div class="verdict"><div class="body"><div class="lvl">Riesgo ${esc(r.verdict.label)}</div><div class="head">${esc(r.verdict.headline)}</div><p>${esc(r.verdict.detail)}</p></div>
+<div class="score">${ring(r.score, risk.ink)}<small>${esc(r.score.total)} de 100 puntos</small></div></div>
+<section><h2>Resumen para la dirección</h2><dl class="brief">${brief(r).map(([t, v]) => `<dt>${esc(t)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>
+<section><h2>Qué pasaría con un correo falso a su nombre</h2>
+<p class="muted" style="margin-bottom:6px">Un estafador envía un correo como <b>${esc(r.simulation.from)}</b> desde un servidor que no es suyo.</p>
+${flow(r.simulation)}
+<p class="muted note-sim">Simulación calculada a partir de los registros públicos del dominio. No se envió ningún correo.</p></section>
+<section><h2>Lo que ya está bien</h2>${good.length ? `<ul class="good">${good.map((g) => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="muted">Ninguno de los controles principales de autenticación de correo está publicado todavía.</p>'}</section>
+<div class="tech">
+<section style="margin-top:0"><h2>Detalle técnico para TI</h2>${records(r)}</section>
+<section><h2>Hallazgos</h2>${findings(r)}</section>
+<section><h2>Plan de corrección</h2>${remediation(r.remediation)}</section>
+<div class="about"><strong>Sobre este informe.</strong> Elaborado por ${esc(author.name)}, ${esc(author.title)}, con la herramienta Suplanta.do. Solo se leyeron registros que el dominio publica en el DNS para que cualquier servidor de correo los consulte: no se accedió a ningún sistema, no se enviaron correos y no se probaron contraseñas. Puede comprobar el resultado usted mismo en <strong>${esc(site)}</strong>. Suplanta.do no está afiliado a ninguna entidad pública ni privada. DMARC no detiene dominios parecidos (typosquatting) ni cuentas comprometidas.${contact.email ? ` Contacto: ${esc(contact.email)}.` : ''}</div>
+</div>
 </body></html>`;
+}
+
+function footer(domain) {
+  return `<div style="font: 7pt Arial, sans-serif; color: #7d889d; width: 100%; padding: 0 15mm; display: flex; justify-content: space-between;">
+<span>Suplanta.do · ${esc(domain)}</span><span>Página <span class="pageNumber"></span> de <span class="totalPages"></span></span></div>`;
 }
 
 async function main() {
@@ -116,13 +240,17 @@ async function main() {
   if (!report.ok) { console.error(`Error: ${report.error}`); process.exit(1); }
 
   const { chromium } = require('playwright');
-  const browser = await chromium.launch({ channel: 'msedge' });
+  const channel = process.env.DOSSIER_BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined);
+  const browser = await chromium.launch(channel ? { channel } : {});
   try {
     const context = await browser.newContext({ javaScriptEnabled: false });
-    await context.route('**/*', (route) => (route.request().url().startsWith('about:') || route.request().url().startsWith('data:') ? route.continue() : route.abort()));
+    await context.route('**/*', (route) => (/^(about|data):/.test(route.request().url()) ? route.continue() : route.abort()));
     const page = await context.newPage();
     await page.setContent(buildHtml(report), { waitUntil: 'load' });
-    const buffer = await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: true });
+    const buffer = await page.pdf({
+      format: 'A4', printBackground: true, preferCSSPageSize: true,
+      displayHeaderFooter: true, headerTemplate: '<span></span>', footerTemplate: footer(report.domain),
+    });
     const out = path.resolve(process.cwd(), `dossier-${report.domain}.pdf`);
     fs.writeFileSync(out, buffer);
     console.log(`PDF generado: ${out}`);
