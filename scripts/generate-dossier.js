@@ -36,6 +36,94 @@ const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 
 const font = (file) => fs.readFileSync(path.join(ROOT, 'assets', 'fonts', file)).toString('base64');
 
+// ---- Textos del PDF en trato formal ("usted"). El motor (src/engine.js) usa "tú" porque la web
+// habla así; aquí no se reutilizan sus textos de veredicto ni de simulación.
+const VERDICT_TEXT = {
+  'Cualquiera puede enviar correos como tu dominio y pasarán las verificaciones.': {
+    headline: 'Cualquiera puede enviar correos como su dominio y pasarán las verificaciones.',
+    detail: 'Su SPF autoriza a todo Internet. Un correo falso no solo llegaría: aparecería como legítimo.',
+  },
+  'Sí: cualquiera puede enviar correos haciéndose pasar por tu dominio.': {
+    headline: 'Sí: cualquiera puede enviar correos haciéndose pasar por su dominio.',
+    detail: 'No hay DMARC. Ningún receptor tiene la instrucción de rechazar correos falsos con su nombre; llegan o no según los filtros de cada proveedor.',
+  },
+  'Sí: tu dominio puede ser suplantado.': {
+    headline: 'Sí: su dominio puede ser suplantado.',
+    detail: 'Tiene DMARC, pero en modo de solo observación ("none" o modo prueba). Los correos falsos no se rechazan.',
+  },
+  'Parcialmente protegido: los correos falsos irían a spam, no a la basura.': {
+    headline: 'Parcialmente protegido: los correos falsos irían a spam, no a la basura.',
+    detail: 'Su DMARC está en "quarantine" o aplicado a una parte del correo. Un empleado que revise su carpeta de spam todavía podría caer.',
+  },
+  'Tu dominio principal está protegido, pero tus subdominios no.': {
+    headline: 'Su dominio principal está protegido, pero sus subdominios no.',
+    detail: 'Un atacante puede usar direcciones como facturacion.su-dominio para engañar a clientes y proveedores.',
+  },
+  'No: los correos falsos con tu dominio exacto serían rechazados.': {
+    headline: 'No: los correos falsos con su dominio exacto serían rechazados.',
+    detail: 'Su DMARC está en "reject". Aún existen ataques con dominios parecidos (typosquatting) o cuentas robadas, que DMARC no detiene.',
+  },
+};
+
+const OUTCOME_TEXT = {
+  'delivered-pass': { label: 'Entregado como legítimo', text: 'El correo falso llega a la bandeja de entrada y pasa todas las verificaciones.' },
+  delivered: { label: 'Puede llegar a la bandeja', text: 'Nada lo bloquea por política. Llega o no según los filtros antispam del receptor.' },
+  quarantine: { label: 'Enviado a spam', text: 'El correo falso termina en la carpeta de spam. Todavía puede ser abierto.' },
+  rejected: { label: 'Rechazado', text: 'El servidor receptor rechaza el correo falso. Nunca llega a la víctima.' },
+};
+
+const SPF_STEP_TEXT = {
+  pass: 'El SPF autoriza al servidor del atacante. El receptor lo considera legítimo.',
+  fail: 'El servidor del atacante no está en el SPF: resultado "fail".',
+  softfail: 'El servidor del atacante no está en el SPF: resultado "softfail" (sospechoso, pero no definitivo).',
+  neutral: 'El SPF no se pronuncia: resultado "neutral".',
+  none: 'No hay SPF que consultar: resultado "none".',
+  permerror: 'El SPF tiene errores y el receptor lo descarta: resultado "permerror".',
+  temperror: 'No se pudo consultar el SPF: resultado "temperror".',
+};
+const DKIM_STEP_TEXT = 'El atacante no tiene su clave privada: el correo llega sin una firma DKIM válida de su dominio.';
+
+function stepText(step, r) {
+  if (step.id === 'spf') return SPF_STEP_TEXT[step.result] || 'No se pudo determinar el resultado de SPF.';
+  if (step.id === 'dkim') return DKIM_STEP_TEXT;
+  const d = r.dmarc;
+  const disposition = r.simulation.disposition;
+  if (!d.present) return 'No existe política DMARC. El receptor decide solo con sus filtros antispam.';
+  if (disposition === 'delivered-pass') return 'SPF "pass" alineado con el remitente visible: DMARC da el correo por auténtico.';
+  const policy = { delivered: 'none', quarantine: 'quarantine', rejected: 'reject' }[disposition] || 'none';
+  return `DMARC falla (ni SPF ni DKIM alineados). Política aplicada: "${policy}"${d.partial ? ` (peor caso: con pct=${d.tags.pct}, el resto del correo recibe una política más suave)` : ''}${d.testing ? ' (rebajada por modo prueba)' : ''}.`;
+}
+
+// Hallazgos y remediación vienen del motor en "tú". Se convierten solo con estas frases
+// exactas (sin patrones amplios); el resto del texto pasa intacto.
+const USTED = [
+  ['SPF le dice al mundo qué servidores pueden enviar correo con tu dominio.', 'SPF le dice al mundo qué servidores pueden enviar correo con su dominio.'],
+  ['Agrega todos los servicios que envían correo en tu nombre', 'Agregue todos los servicios que envían correo en su nombre'],
+  ['Cuando DMARC llegue a "reject", cambia "~all" por "-all".', 'Cuando DMARC llegue a "reject", cambie "~all" por "-all".'],
+  ['Elimina proveedores que ya no usas, reemplaza ', 'Elimine proveedores que ya no usa, reemplace '],
+  [' o mueve envíos masivos', ' o mueva envíos masivos'],
+  ['Confirma antes que ningún sistema', 'Confirme antes que ningún sistema'],
+  ['Recibe reportes de 2 a 4 semanas e identifica todos los servicios legítimos que envían con tu dominio.', 'Reciba reportes de 2 a 4 semanas e identifique todos los servicios legítimos que envían con su dominio.'],
+  ['Revisa los reportes cada semana.', 'Revise los reportes cada semana.'],
+  ['Los correos falsos con tu dominio son rechazados.', 'Los correos falsos con su dominio son rechazados.'],
+  ['rechacen correos falsos con tu dominio.', 'rechacen correos falsos con su dominio.'],
+  ['Conservamos tu dirección actual de reportes DMARC. Avanza de fase solo cuando', 'Conservamos su dirección actual de reportes DMARC. Avance de fase solo cuando'],
+  ['todo tu correo legítimo', 'todo su correo legítimo'],
+  ['Crea el buzón ', 'Cree el buzón '],
+  ['(o usa un servicio que procese', '(o use un servicio que procese'],
+  ['crea los registros CNAME selector1 y selector2 que te indica el portal y activa la firma.', 'cree los registros CNAME selector1 y selector2 que le indica el portal y active la firma.'],
+  ['genera una clave de 2048 bits, publica el TXT google._domainkey y pulsa ', 'genere una clave de 2048 bits, publique el TXT google._domainkey y pulse '],
+  ['agrega un selector, publica el TXT y verifica.', 'agregue un selector, publique el TXT y verifique.'],
+  ['Activa la firma DKIM en tu proveedor de correo (2048 bits) y publica el registro que te entregue.', 'Active la firma DKIM en su proveedor de correo (2048 bits) y publique el registro que le entregue.'],
+  ['DKIM firma criptográficamente tus correos: prueba que salieron de ti y que nadie', 'DKIM firma criptográficamente sus correos: prueba que salieron de usted y que nadie'],
+  ['Además publica la política en ', 'Además publique la política en '],
+  ['Solo las autoridades que autorices podrán emitir certificados HTTPS para tu dominio.', 'Solo las autoridades que usted autorice podrán emitir certificados HTTPS para su dominio.'],
+  ['Verifica qué autoridad usa hoy tu sitio antes de publicarlo.', 'Verifique qué autoridad usa hoy su sitio antes de publicarlo.'],
+  ['<tu-proveedor-de-correo>', '<su-proveedor-de-correo>'],
+  ['<tu-autoridad-certificadora>', '<su-autoridad-certificadora>'],
+];
+const usted = (text) => USTED.reduce((t, [from, to]) => t.split(from).join(to), String(text ?? ''));
+
 const RISK = {
   critical: { ink: '#c4283a', bg: '#fbe9eb' },
   high: { ink: '#a8470c', bg: '#fcefe6' },
@@ -75,7 +163,7 @@ function brief(r) {
       ? `Cualquiera puede enviar correos que aparentan salir de ${d}, y pasan como legítimos.`
       : `Cualquiera puede enviar correos que aparentan salir de ${d}, y ninguna regla del dominio indica rechazarlos.`],
     ['Riesgo para el negocio', 'Fraudes de pago a clientes y proveedores ("cambiamos de cuenta bancaria"), robo de contraseñas y daño a la reputación de la marca.'],
-    ['Qué hacer', 'Que TI o el proveedor de correo aplique el plan de la página 2. Se hace de forma gradual en 4 a 8 semanas y casi nunca requiere comprar productos.'],
+    ['Qué hacer', 'Que TI o el proveedor de correo aplique el plan de la página 2. Se hace de forma gradual en unas 4 a 8 semanas (estimado) y normalmente no requiere comprar productos.'],
   ];
 }
 
@@ -103,14 +191,15 @@ function ring(score, color) {
 <text x="44" y="52" text-anchor="middle" font-size="26" font-weight="700" fill="#10203a">${esc(score.grade)}</text></svg>`;
 }
 
-function flow(sim) {
+function flow(sim, r) {
   const steps = sim.steps.map((s) => {
     const tone = s.ok ? 'low' : s.bad ? 'critical' : 'medium';
-    return `<div class="step"><div class="step-name">${esc(s.title)}</div><div class="chip ${tone}">${esc(STEP_RESULT[s.result] || s.result)}</div><p>${esc(s.text)}</p></div>`;
+    return `<div class="step"><div class="step-name">${esc(s.title)}</div><div class="chip ${tone}">${esc(STEP_RESULT[s.result] || s.result)}</div><p>${esc(stepText(s, r))}</p></div>`;
   }).join('<div class="arrow">→</div>');
   const tone = RISK[sim.outcome.tone] ? sim.outcome.tone : 'high';
+  const out = OUTCOME_TEXT[sim.disposition] || { label: sim.outcome.label, text: usted(sim.outcome.text) };
   return `<div class="flow">${steps}</div>
-<div class="outcome ${tone}"><strong>Resultado: ${esc(sim.outcome.label)}.</strong> ${esc(sim.outcome.text)}</div>`;
+<div class="outcome ${tone}"><strong>Resultado: ${esc(out.label)}.</strong> ${esc(out.text)}</div>`;
 }
 
 function findings(r) {
@@ -118,7 +207,7 @@ function findings(r) {
   if (!items.length) return '<p class="muted">No se encontraron hallazgos.</p>';
   return `<table class="findings">${items.map((i) => {
     const s = SEVERITY[i.severity] || SEVERITY.info;
-    return `<tr><td class="sev"><span class="chip ${s.tone}">${esc(s.label)}</span></td><td>${esc(i.message)}</td></tr>`;
+    return `<tr><td class="sev"><span class="chip ${s.tone}">${esc(s.label)}</span></td><td>${esc(usted(i.message))}</td></tr>`;
   }).join('')}</table>`;
 }
 
@@ -137,15 +226,16 @@ function records(r) {
 function remediation(items) {
   if (!items.length) return '<p class="muted">No hay acciones pendientes.</p>';
   return `<ol class="plan">${items.slice(0, 6).map((it) => {
-    const lines = [...(it.phases || []).map((p) => [p.label, `${p.type} ${p.name}`, p.value]), ...(it.records || []).map((x) => ['', `${x.type} ${x.name}`, x.value])];
+    const lines = [...(it.phases || []).map((p) => [p.label, `${p.type} ${p.name}`, usted(p.value)]), ...(it.records || []).map((x) => ['', `${x.type} ${x.name}`, usted(x.value)])];
     const recs = lines.map(([label, where, value]) => `<div class="rec">${label ? `<span class="rec-label">${esc(label)}</span>` : ''}<span class="rec-where">${esc(where)}</span><code>${esc(value)}</code></div>`).join('');
-    return `<li><div class="plan-head"><strong>${esc(it.title)}</strong><span class="pri">P${esc(it.priority)}</span></div><p>${esc(it.why)}</p>${recs}${it.note ? `<p class="muted">${esc(it.note)}</p>` : ''}</li>`;
+    return `<li><div class="plan-head"><strong>${esc(usted(it.title))}</strong><span class="pri">P${esc(it.priority)}</span></div><p>${esc(usted(it.why))}</p>${recs}${it.note ? `<p class="muted">${esc(usted(it.note))}</p>` : ''}</li>`;
   }).join('')}</ol>`;
 }
 
 function buildHtml(r) {
   const when = new Date(r.analyzedAt).toLocaleString('es-DO', { timeZone: TZ, dateStyle: 'long', timeStyle: 'short' });
   const risk = RISK[r.verdict.level] || RISK.high;
+  const vt = VERDICT_TEXT[r.verdict.headline] || { headline: usted(r.verdict.headline), detail: usted(r.verdict.detail) };
   const good = strengths(r);
   const author = SITE.author || {};
   const contact = SITE.contact || {};
@@ -212,12 +302,12 @@ ol.plan li { margin-bottom: 9px; break-inside: avoid; }
 <div class="brand"><b>Suplanta<span>.do</span></b><span>Informe confidencial para ${esc(r.domain)}</span></div>
 <div class="title"><div class="kicker">Informe de suplantación de correo</div><h1>${esc(r.domain)}</h1>
 <div class="muted">Análisis del ${esc(when)} (hora de República Dominicana) · Lectura pasiva de registros DNS públicos</div></div>
-<div class="verdict"><div class="body"><div class="lvl">Riesgo ${esc(r.verdict.label)}</div><div class="head">${esc(r.verdict.headline)}</div><p>${esc(r.verdict.detail)}</p></div>
+<div class="verdict"><div class="body"><div class="lvl">Riesgo ${esc(r.verdict.label)}</div><div class="head">${esc(vt.headline)}</div><p>${esc(vt.detail)}</p></div>
 <div class="score">${ring(r.score, risk.ink)}<small>${esc(r.score.total)} de 100 puntos</small></div></div>
 <section><h2>Resumen para la dirección</h2><dl class="brief">${brief(r).map(([t, v]) => `<dt>${esc(t)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>
 <section><h2>Qué pasaría con un correo falso a su nombre</h2>
 <p class="muted" style="margin-bottom:6px">Un estafador envía un correo como <b>${esc(r.simulation.from)}</b> desde un servidor que no es suyo.</p>
-${flow(r.simulation)}
+${flow(r.simulation, r)}
 <p class="muted note-sim">Simulación calculada a partir de los registros públicos del dominio. No se envió ningún correo.</p></section>
 <section><h2>Lo que ya está bien</h2>${good.length ? `<ul class="good">${good.map((g) => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="muted">Ninguno de los controles principales de autenticación de correo está publicado todavía.</p>'}</section>
 <div class="tech">

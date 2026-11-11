@@ -67,7 +67,7 @@ test('sitio publicado: análisis, simulación y seguridad', async (t) => {
     await page.click('#mode-simple');
     await page.click('#tab-sub');
     assert.match(await page.textContent('#route-from'), /pagos\.ejemplo\.do/);
-    assert.match(await page.textContent('#foot-author'), /Tecnólogo en Seguridad Informática/);
+    assert.match(await page.textContent('#foot-author'), /Estudiante de Seguridad Informática/);
     assert.deepEqual(problems, []);
     await context.close();
   });
