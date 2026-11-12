@@ -1,6 +1,6 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-11-10",
+ "scanDate": "2026-11-11",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
@@ -12,29 +12,29 @@
  "overall": {
   "n": 226,
   "dmarc": {
-   "missing": 25.2,
+   "missing": 24.8,
    "none": 26.1,
-   "quarantine": 22.6,
+   "quarantine": 23,
    "reject": 26.1,
    "counts": {
-    "missing": 57,
+    "missing": 56,
     "none": 59,
-    "quarantine": 51,
+    "quarantine": 52,
     "reject": 59
    }
   },
-  "spoofable": 51.3,
-  "spoofableCount": 116,
-  "fakeDelivered": 53.5,
-  "subdomainSpoofable": 54.9,
+  "spoofable": 50.9,
+  "spoofableCount": 115,
+  "fakeDelivered": 53.1,
+  "subdomainSpoofable": 54.4,
   "spf": {
    "missing": 10.2,
    "broken": 6.2,
    "passAll": 0,
    "neutralOrNoAll": 0.9,
-   "hardfail": 58.8
+   "hardfail": 58.4
   },
-  "rua": 57.1,
+  "rua": 57.5,
   "dkimFound": 73.5,
   "dkimWeak": 35.8,
   "mtaSts": 2.2,
@@ -55,7 +55,7 @@
    },
    {
     "grade": "C",
-    "count": 43
+    "count": 44
    },
    {
     "grade": "D",
@@ -67,7 +67,7 @@
    },
    {
     "grade": "F",
-    "count": 67
+    "count": 66
    }
   ]
  },
@@ -233,7 +233,7 @@
    "dnssec": 0,
    "bimi": 4.2,
    "caa": 0,
-   "avgScore": 46,
+   "avgScore": 47,
    "grades": [
     {
      "grade": "A",
@@ -325,69 +325,6 @@
    ]
   },
   {
-   "sector": "Educación superior",
-   "n": 35,
-   "dmarc": {
-    "missing": 31.4,
-    "none": 28.6,
-    "quarantine": 25.7,
-    "reject": 14.3,
-    "counts": {
-     "missing": 11,
-     "none": 10,
-     "quarantine": 9,
-     "reject": 5
-    }
-   },
-   "spoofable": 60,
-   "spoofableCount": 21,
-   "fakeDelivered": 65.7,
-   "subdomainSpoofable": 68.6,
-   "spf": {
-    "missing": 5.7,
-    "broken": 8.6,
-    "passAll": 0,
-    "neutralOrNoAll": 0,
-    "hardfail": 51.4
-   },
-   "rua": 51.4,
-   "dkimFound": 77.1,
-   "dkimWeak": 42.9,
-   "mtaSts": 0,
-   "mtaStsEnforce": 0,
-   "tlsRpt": 0,
-   "dnssec": 0,
-   "bimi": 2.9,
-   "caa": 2.9,
-   "avgScore": 48,
-   "grades": [
-    {
-     "grade": "A",
-     "count": 0
-    },
-    {
-     "grade": "B",
-     "count": 4
-    },
-    {
-     "grade": "C",
-     "count": 5
-    },
-    {
-     "grade": "D",
-     "count": 11
-    },
-    {
-     "grade": "E",
-     "count": 3
-    },
-    {
-     "grade": "F",
-     "count": 12
-    }
-   ]
-  },
-  {
    "sector": "Transporte y turismo",
    "n": 12,
    "dmarc": {
@@ -451,6 +388,69 @@
    ]
   },
   {
+   "sector": "Educación superior",
+   "n": 35,
+   "dmarc": {
+    "missing": 28.6,
+    "none": 28.6,
+    "quarantine": 28.6,
+    "reject": 14.3,
+    "counts": {
+     "missing": 10,
+     "none": 10,
+     "quarantine": 10,
+     "reject": 5
+    }
+   },
+   "spoofable": 57.1,
+   "spoofableCount": 20,
+   "fakeDelivered": 62.9,
+   "subdomainSpoofable": 65.7,
+   "spf": {
+    "missing": 5.7,
+    "broken": 8.6,
+    "passAll": 0,
+    "neutralOrNoAll": 0,
+    "hardfail": 51.4
+   },
+   "rua": 54.3,
+   "dkimFound": 77.1,
+   "dkimWeak": 42.9,
+   "mtaSts": 0,
+   "mtaStsEnforce": 0,
+   "tlsRpt": 0,
+   "dnssec": 0,
+   "bimi": 2.9,
+   "caa": 2.9,
+   "avgScore": 49,
+   "grades": [
+    {
+     "grade": "A",
+     "count": 0
+    },
+    {
+     "grade": "B",
+     "count": 4
+    },
+    {
+     "grade": "C",
+     "count": 6
+    },
+    {
+     "grade": "D",
+     "count": 11
+    },
+    {
+     "grade": "E",
+     "count": 3
+    },
+    {
+     "grade": "F",
+     "count": 11
+    }
+   ]
+  },
+  {
    "sector": "Gobierno",
    "n": 70,
    "dmarc": {
@@ -474,7 +474,7 @@
     "broken": 2.9,
     "passAll": 0,
     "neutralOrNoAll": 0,
-    "hardfail": 68.6
+    "hardfail": 67.1
    },
    "rua": 60,
    "dkimFound": 65.7,
@@ -580,8 +580,8 @@
  "providers": [
   {
    "id": "m365",
-   "count": 116,
-   "share": 51.3
+   "count": 115,
+   "share": 50.9
   },
   {
    "id": "google",
@@ -595,8 +595,8 @@
   },
   {
    "id": "sin-correo",
-   "count": 16,
-   "share": 7.1
+   "count": 17,
+   "share": 7.5
   },
   {
    "id": "cpanel",
