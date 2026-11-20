@@ -1,49 +1,49 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-11-18",
+ "scanDate": "2026-11-19",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
   "notResolving": 18,
   "excluded": 9,
-  "inconclusive": 3,
-  "analyzed": 225
+  "inconclusive": 2,
+  "analyzed": 226
  },
  "overall": {
-  "n": 225,
+  "n": 226,
   "dmarc": {
-   "missing": 24.4,
-   "none": 26.2,
-   "quarantine": 23.1,
-   "reject": 26.2,
+   "missing": 24.3,
+   "none": 26.1,
+   "quarantine": 23,
+   "reject": 26.5,
    "counts": {
     "missing": 55,
     "none": 59,
     "quarantine": 52,
-    "reject": 59
+    "reject": 60
    }
   },
-  "spoofable": 50.7,
+  "spoofable": 50.4,
   "spoofableCount": 114,
-  "fakeDelivered": 52.9,
-  "subdomainSpoofable": 54.2,
+  "fakeDelivered": 52.7,
+  "subdomainSpoofable": 54,
   "spf": {
    "missing": 10.2,
    "broken": 6.2,
    "passAll": 0,
    "neutralOrNoAll": 0.9,
-   "hardfail": 58.2
+   "hardfail": 58.4
   },
-  "rua": 57.3,
-  "dkimFound": 73.8,
-  "dkimWeak": 36,
+  "rua": 57.5,
+  "dkimFound": 73.5,
+  "dkimWeak": 36.3,
   "mtaSts": 2.2,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
   "dnssec": 0.9,
   "bimi": 4,
-  "caa": 9.8,
-  "avgScore": 53,
+  "caa": 9.7,
+  "avgScore": 54,
   "grades": [
    {
     "grade": "A",
@@ -51,7 +51,7 @@
    },
    {
     "grade": "B",
-    "count": 43
+    "count": 44
    },
    {
     "grade": "C",
@@ -263,40 +263,40 @@
   },
   {
    "sector": "Telecom y energía",
-   "n": 12,
+   "n": 13,
    "dmarc": {
-    "missing": 16.7,
-    "none": 41.7,
-    "quarantine": 25,
-    "reject": 16.7,
+    "missing": 23.1,
+    "none": 38.5,
+    "quarantine": 23.1,
+    "reject": 15.4,
     "counts": {
-     "missing": 2,
+     "missing": 3,
      "none": 5,
      "quarantine": 3,
      "reject": 2
     }
    },
-   "spoofable": 58.3,
-   "spoofableCount": 7,
-   "fakeDelivered": 58.3,
-   "subdomainSpoofable": 58.3,
+   "spoofable": 61.5,
+   "spoofableCount": 8,
+   "fakeDelivered": 61.5,
+   "subdomainSpoofable": 61.5,
    "spf": {
-    "missing": 16.7,
-    "broken": 8.3,
+    "missing": 15.4,
+    "broken": 7.7,
     "passAll": 0,
     "neutralOrNoAll": 0,
-    "hardfail": 50
+    "hardfail": 53.8
    },
-   "rua": 50,
-   "dkimFound": 66.7,
-   "dkimWeak": 50,
+   "rua": 46.2,
+   "dkimFound": 61.5,
+   "dkimWeak": 46.2,
    "mtaSts": 0,
    "mtaStsEnforce": 0,
    "tlsRpt": 0,
-   "dnssec": 8.3,
+   "dnssec": 7.7,
    "bimi": 0,
-   "caa": 16.7,
-   "avgScore": 50,
+   "caa": 15.4,
+   "avgScore": 48,
    "grades": [
     {
      "grade": "A",
@@ -320,7 +320,7 @@
     },
     {
      "grade": "F",
-     "count": 3
+     "count": 4
     }
    ]
   },
@@ -454,21 +454,21 @@
    "sector": "Gobierno",
    "n": 70,
    "dmarc": {
-    "missing": 20,
+    "missing": 18.6,
     "none": 32.9,
     "quarantine": 25.7,
-    "reject": 21.4,
+    "reject": 22.9,
     "counts": {
-     "missing": 14,
+     "missing": 13,
      "none": 23,
      "quarantine": 18,
-     "reject": 15
+     "reject": 16
     }
    },
-   "spoofable": 52.9,
-   "spoofableCount": 37,
-   "fakeDelivered": 54.3,
-   "subdomainSpoofable": 55.7,
+   "spoofable": 51.4,
+   "spoofableCount": 36,
+   "fakeDelivered": 52.9,
+   "subdomainSpoofable": 54.3,
    "spf": {
     "missing": 8.6,
     "broken": 2.9,
@@ -476,7 +476,7 @@
     "neutralOrNoAll": 0,
     "hardfail": 67.1
    },
-   "rua": 60,
+   "rua": 61.4,
    "dkimFound": 65.7,
    "dkimWeak": 30,
    "mtaSts": 1.4,
@@ -485,7 +485,7 @@
    "dnssec": 0,
    "bimi": 0,
    "caa": 4.3,
-   "avgScore": 53,
+   "avgScore": 54,
    "grades": [
     {
      "grade": "A",
@@ -493,7 +493,7 @@
     },
     {
      "grade": "B",
-     "count": 10
+     "count": 11
     },
     {
      "grade": "C",
@@ -509,7 +509,7 @@
     },
     {
      "grade": "F",
-     "count": 17
+     "count": 16
     }
    ]
   },
@@ -541,7 +541,7 @@
    },
    "rua": 84.4,
    "dkimFound": 88.9,
-   "dkimWeak": 46.7,
+   "dkimWeak": 48.9,
    "mtaSts": 6.7,
    "mtaStsEnforce": 0,
    "tlsRpt": 6.7,
@@ -580,18 +580,18 @@
  "providers": [
   {
    "id": "m365",
-   "count": 115,
-   "share": 51.1
+   "count": 116,
+   "share": 51.3
   },
   {
    "id": "google",
    "count": 35,
-   "share": 15.6
+   "share": 15.5
   },
   {
    "id": "other",
    "count": 33,
-   "share": 14.7
+   "share": 14.6
   },
   {
    "id": "sin-correo",
