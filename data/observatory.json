@@ -1,6 +1,6 @@
 {
  "title": "Observatorio de Suplantación de Correo — República Dominicana",
- "scanDate": "2026-11-25",
+ "scanDate": "2026-11-26",
  "method": "Consultas DNS públicas (DNS-over-HTTPS) sobre el dominio web principal de cada organización. Sin escaneo de puertos ni interacción con servidores de correo.",
  "sample": {
   "scanned": 255,
@@ -32,12 +32,12 @@
    "broken": 6.2,
    "passAll": 0,
    "neutralOrNoAll": 0.9,
-   "hardfail": 58.8
+   "hardfail": 58.4
   },
   "rua": 57.5,
   "dkimFound": 73.5,
   "dkimWeak": 35.8,
-  "mtaSts": 2.2,
+  "mtaSts": 2.7,
   "mtaStsEnforce": 1,
   "tlsRpt": 2.2,
   "dnssec": 0.9,
@@ -233,7 +233,7 @@
    "dnssec": 0,
    "bimi": 4.2,
    "caa": 0,
-   "avgScore": 47,
+   "avgScore": 46,
    "grades": [
     {
      "grade": "A",
@@ -474,12 +474,12 @@
     "broken": 2.9,
     "passAll": 0,
     "neutralOrNoAll": 0,
-    "hardfail": 68.6
+    "hardfail": 67.1
    },
    "rua": 61.4,
    "dkimFound": 65.7,
    "dkimWeak": 30,
-   "mtaSts": 1.4,
+   "mtaSts": 2.9,
    "mtaStsEnforce": 0,
    "tlsRpt": 1.4,
    "dnssec": 0,
@@ -580,8 +580,8 @@
  "providers": [
   {
    "id": "m365",
-   "count": 115,
-   "share": 50.9
+   "count": 116,
+   "share": 51.3
   },
   {
    "id": "google",
@@ -595,8 +595,8 @@
   },
   {
    "id": "sin-correo",
-   "count": 17,
-   "share": 7.5
+   "count": 16,
+   "share": 7.1
   },
   {
    "id": "cpanel",
